@@ -11,7 +11,7 @@ All data is persisted via `SharedPreferences`. The method of serialization can b
 
 ## Configuration
 
-Check this project out as a git submodule.
+Check out the project as git submodule
 
 ```bash
 git submodule add https://github.com/digitalegarage/android-env-picker

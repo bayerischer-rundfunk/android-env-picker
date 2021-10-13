@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dialog_cancel">Abbrechen</string>
+    <string name="dialog_ok">Ok</string>
+    <string name="dialog_remove">Entfernen</string>
+    <string name="dialog_change_entry_title">Aktiven Eintrag ändern</string>
+    <string name="dialog_change_entry_message">Möchtest du den aktiven Eintrag ändern und die App neustarten?</string>
+    <string name="dialog_change_entry_restart">Neustart</string>
+</resources>
