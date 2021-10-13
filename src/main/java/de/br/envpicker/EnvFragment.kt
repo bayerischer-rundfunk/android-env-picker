@@ -1,0 +1,122 @@
+package de.br.envpicker
+
+import android.content.DialogInterface
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatEditText
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+
+internal class EnvFragment<T : Entry>(private val config: Config<T>? = null) :
+    Fragment(R.layout.env_fragment) {
+
+    private val recycler get() = view?.findViewById<RecyclerView>(R.id.recycler)
+
+    private val viewModel by viewModels<EnvViewModel<T>> {
+        EnvViewModel.Factory(
+            config!!,
+            requireContext().applicationContext
+        )
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        view.findViewById<TextView>(R.id.toolbar_title).text = viewModel.fragmentTitle
+
+        val adapter = EntryAdapter(::onEntryClicked, ::onEditEntryClicked)
+        recycler?.adapter = adapter
+        recycler?.layoutManager = LinearLayoutManager(requireContext())
+
+        view.findViewById<View>(R.id.fab).setOnClickListener { showEntryDialog(null) }
+        viewModel.items.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
+        }
+    }
+
+    private fun onEntryClicked(entryContainer: EntryContainer<T>, view: View) {
+        if (entryContainer.active) return
+        showConfirmRestartDialog { _, _ ->
+            viewModel.setActiveEntryAndRestart(entryContainer.entry, requireContext())
+        }
+    }
+
+    private fun onEditEntryClicked(entry: EntryContainer<T>, view: View) {
+        showEntryDialog(entry)
+    }
+
+    private fun showEntryDialog(entryContainer: EntryContainer<T>?) {
+        val context = context ?: return
+        val dialogView =
+            LayoutInflater.from(requireContext()).inflate(R.layout.edit_entry_dialog, null)
+        val nameEditText = dialogView.findViewById<EditText>(R.id.et_name)
+            .apply { setText(entryContainer?.entry?.name) }
+        val valuesContainer = dialogView.findViewById<ViewGroup>(R.id.ll_values)
+        val editTexts = viewModel.config.entryDescription.fieldNames
+            .mapIndexed { i, fieldName ->
+                val editText = AppCompatEditText(context)
+                editText.hint = fieldName
+                entryContainer?.entry?.fields?.getOrNull(i)
+                    ?.let { editText.setText(it) }
+                editText
+            }
+            .onEach { valuesContainer.addView(it) }
+
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+            .setCancelable(true)
+            .setNegativeButton("Cancel") { _, _ -> }
+            .setPositiveButton("Ok") { _, _ ->
+                onUpdateEntry(entryContainer, nameEditText, editTexts)
+            }
+            .setView(dialogView)
+
+        if (entryContainer != null && !entryContainer.active) {
+            dialogBuilder
+                .setNeutralButton("Remove") { _, _ -> viewModel.removeEntry(entryContainer.entry) }
+        }
+        dialogBuilder.show()
+    }
+
+    private fun onUpdateEntry(
+        entryContainer: EntryContainer<T>?,
+        nameEditText: EditText,
+        editTexts: List<EditText>
+    ) {
+        if (entryContainer?.active == true) {
+            showConfirmRestartDialog { _, _ ->
+                viewModel.updateEntryAndRestart(
+                    entryContainer.entry,
+                    nameEditText.text.toString(),
+                    editTexts.map { it.text.toString() },
+                    requireContext()
+                )
+            }
+        } else {
+            viewModel.updateEntry(
+                entryContainer?.entry,
+                nameEditText.text.toString(),
+                editTexts.map { it.text.toString() }
+            )
+        }
+    }
+
+    private fun showConfirmRestartDialog(
+        positiveAction: DialogInterface.OnClickListener
+    ) {
+        AlertDialog.Builder(requireContext())
+            .setCancelable(true)
+            .setTitle("Change active entry")
+            .setMessage("Do you want to change the active entry and restart the app?")
+            .setPositiveButton("Restart", positiveAction)
+            .setNegativeButton("Cancel") { _, _ -> }
+            .show()
+    }
+}
+
