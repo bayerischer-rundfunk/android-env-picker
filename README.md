@@ -98,6 +98,10 @@ class AMSEndpointManager(
 
 ## Advanced Usage
 
+In case multiple String values need to be saved per entry, the `MultiEntry` class is a good solution.
+Usage is similar to `SimpleEntry` above. Alternatively, a custom data class can be chosen as `Entry`
+implementation. 
+
 ```kotlin
 
 // define a custom data class with arbitrarily many fields of any type
