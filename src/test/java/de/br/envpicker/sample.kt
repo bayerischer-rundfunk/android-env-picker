@@ -3,7 +3,7 @@ package de.br.envpicker
 import android.content.Context
 import androidx.fragment.app.FragmentManager
 import com.google.gson.Gson
-import de.br.envpicker.mocks.mockContext
+import de.br.envpicker.mocks.getMockContext
 import de.br.envpicker.mocks.mockFragmentManager
 import org.junit.Test
 import java.io.Serializable
@@ -11,7 +11,7 @@ import java.io.Serializable
 class SampleTest {
     @Test
     fun `test Sample`() {
-        envPickerSample(mockContext, mockFragmentManager)
+        envPickerSample(getMockContext(), mockFragmentManager)
     }
 }
 
@@ -41,7 +41,7 @@ fun envPickerSample(
 
     val endpointPicker = envPicker(
         Config(
-            "endpoints", // used as sharedPrefs key
+            "endpointsPickerSample", // used as sharedPrefs key
             "Choose Endpoint", // displayed as fragment title
             EntryDescription(
                 listOf("URL", "User", "Password"), // these will be displayed as title of TextEdits

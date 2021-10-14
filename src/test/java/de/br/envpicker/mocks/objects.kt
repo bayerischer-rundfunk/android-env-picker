@@ -7,11 +7,11 @@ import androidx.fragment.app.FragmentTransaction
 import io.mockk.every
 import io.mockk.mockk
 
-val mockContext by lazy {
+fun getMockContext(): Context {
     val context = mockk<Context>()
     val mockSharedPreferences = MockSharedPreferences()
     every { context.getSharedPreferences(any(), any()) } returns mockSharedPreferences
-    context
+    return context
 }
 
 val mockFragmentManager = mockk<FragmentManager>()

@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
  * @property defaultEntries will be set as initial values if no entries are present at init time
  * @property defaultActiveEntry will be set as initial active entry
  */
-class Config<T : Entry>(
+data class Config<T : Entry>(
     val key: String,
     val fragmentTitle: String,
     val entryDescription: EntryDescription<T>,
@@ -25,13 +25,13 @@ class Config<T : Entry>(
  * an [Entry] class.
  *
  * @property fieldNames the names of the fields associated with the [Entry]
- * @property createEntry used to instantiate [Entry]s from text inputs
+ * @property createEntryFromInputs used to instantiate [Entry]s from text inputs
  * @property serializeEntry used to serialize the [Entry] implementation
  * @property deserializeEntry used to deserialize the [Entry] implementation
  */
 class EntryDescription<T : Entry>(
     val fieldNames: List<String>,
-    val createEntry: (String, List<String>) -> T,
+    val createEntryFromInputs: (String, List<String>) -> T,
     val serializeEntry: (T) -> String,
     val deserializeEntry: (String) -> T,
 )
@@ -75,7 +75,7 @@ interface EnvPicker<T : Entry> {
     /**
      * Get the active [Entry] directly.
      */
-    fun getActiveEntry(context: Context): T?
+    fun getActiveEntry(context: Context): T
 
     /**
      * Set the active [Entry] directly.
@@ -118,7 +118,7 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
         override fun setEntries(state: List<T>, context: Context) =
             getRepo(context).saveEntries(state)
 
-        override fun getActiveEntry(context: Context): T? =
+        override fun getActiveEntry(context: Context): T =
             getRepo(context).loadActiveEntry()
 
         override fun setActiveEntry(entry: T, context: Context) {
@@ -126,6 +126,12 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
         }
 
         private fun validateConfig(config: Config<T>) {
+            if (config.key.isBlank())
+                throw IllegalArgumentException("The key can not be blank.")
+            if (config.defaultActiveEntry !in config.defaultEntries)
+                throw IllegalArgumentException(
+                    "The defaultActiveEntry must be included in the defaultEntries. Duh."
+                )
             config.defaultEntries.forEach {
                 if (it.fields.size != config.entryDescription.fieldNames.size) {
                     throw IllegalArgumentException(

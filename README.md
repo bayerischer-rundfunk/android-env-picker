@@ -61,15 +61,13 @@ class AMSEndpointManager(
 
     // the central information that we care about
     fun getCurrentEndpointUrl(): String =
-        if (BuildConfig.INSPECT) {
-            envPicker.getActiveEntry(context)?.value
-                ?.let { URL("https", it, "/").toString() }
-                ?: throw IllegalStateException("Could not retrieve active endpoint")
-        } else BuildConfig.AMS_ENDPOINT
+        if (BuildConfig.INSPECT)
+            envPicker.getActiveEntry(context).value
+                .let { (_, url) -> URL("https", url, "/").toString() }
+        else BuildConfig.AMS_ENDPOINT
 
     // this is called from the settings screen
-    fun getCurrentEndpointName(): String = envPicker.getActiveEntry(context)?.name
-        ?: throw IllegalStateException("Could not retrieve active endpoint")
+    fun getCurrentEndpointName(): String = envPicker.getActiveEntry(context).name
 
     // this is called from the settings screen
     fun createEndpointsFragment(): Fragment = envPicker.createFragment()

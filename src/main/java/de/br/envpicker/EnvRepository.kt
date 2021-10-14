@@ -37,8 +37,11 @@ internal class EnvRepository<T : Entry>(
     fun loadActiveEntryKey(): String? =
         prefs.getString(PREFS_ACTIVE_ENTRY_KEY_KEY, null)
 
-    fun loadActiveEntry(): T? =
-        loadEntries().find { it.name == loadActiveEntryKey() }
+    fun loadActiveEntry(): T {
+        val key = loadActiveEntryKey()
+        return loadEntries().find { it.name == key }
+            ?: throw IllegalStateException("The active entry key is invalid: $key")
+    }
 
     fun saveActiveEntry(entry: T) {
         prefs.edit().putString(PREFS_ACTIVE_ENTRY_KEY_KEY, entry.name).apply()
