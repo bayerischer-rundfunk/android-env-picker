@@ -2,8 +2,8 @@ package de.br.envpicker
 
 import android.content.Context
 import de.br.envpicker.mocks.getMockContext
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
