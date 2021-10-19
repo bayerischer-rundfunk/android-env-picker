@@ -31,7 +31,7 @@ internal class EnvFragment<T : Entry>(private val config: Config<T>? = null) :
 
         view.findViewById<TextView>(R.id.toolbar_title).text = viewModel.fragmentTitle
 
-        val adapter = EntryAdapter(::onEntryClicked, ::onEditEntryClicked)
+        val adapter = EntryAdapter(onEntryClicked, onEditEntryClicked)
         recycler?.adapter = adapter
         recycler?.layoutManager = LinearLayoutManager(requireContext())
 
@@ -41,14 +41,14 @@ internal class EnvFragment<T : Entry>(private val config: Config<T>? = null) :
         }
     }
 
-    private fun onEntryClicked(entryContainer: EntryContainer<T>, view: View) {
-        if (entryContainer.active) return
-        showConfirmRestartDialog { _, _ ->
-            viewModel.setActiveEntryAndRestart(entryContainer.entry, requireContext())
-        }
+    private val onEntryClicked = { entryContainer: EntryContainer<T>, _: View ->
+        if (!entryContainer.active)
+            showConfirmRestartDialog { _, _ ->
+                viewModel.setActiveEntryAndRestart(entryContainer.entry, requireContext())
+            }
     }
 
-    private fun onEditEntryClicked(entry: EntryContainer<T>, view: View) {
+    private val onEditEntryClicked = { entry: EntryContainer<T>, _: View ->
         showEntryDialog(entry)
     }
 
@@ -71,15 +71,17 @@ internal class EnvFragment<T : Entry>(private val config: Config<T>? = null) :
 
         val dialogBuilder = AlertDialog.Builder(requireContext())
             .setCancelable(true)
-            .setNegativeButton("Cancel") { _, _ -> }
-            .setPositiveButton("Ok") { _, _ ->
+            .setNegativeButton(getString(R.string.ep_dialog_cancel)) { _, _ -> }
+            .setPositiveButton(getString(R.string.ep_dialog_ok)) { _, _ ->
                 onUpdateEntry(entryContainer, nameEditText, editTexts)
             }
             .setView(dialogView)
 
         if (entryContainer != null && !entryContainer.active) {
             dialogBuilder
-                .setNeutralButton("Remove") { _, _ -> viewModel.removeEntry(entryContainer.entry) }
+                .setNeutralButton(getString(R.string.ep_dialog_remove)) { _, _ ->
+                    viewModel.removeEntry(entryContainer.entry)
+                }
         }
         dialogBuilder.show()
     }
@@ -112,10 +114,10 @@ internal class EnvFragment<T : Entry>(private val config: Config<T>? = null) :
     ) {
         AlertDialog.Builder(requireContext())
             .setCancelable(true)
-            .setTitle("Change active entry")
-            .setMessage("Do you want to change the active entry and restart the app?")
-            .setPositiveButton("Restart", positiveAction)
-            .setNegativeButton("Cancel") { _, _ -> }
+            .setTitle(getString(R.string.ep_dialog_change_entry_title))
+            .setMessage(getString(R.string.ep_dialog_change_entry_message))
+            .setPositiveButton(getString(R.string.ep_dialog_change_entry_restart), positiveAction)
+            .setNegativeButton(getString(R.string.ep_dialog_cancel)) { _, _ -> }
             .show()
     }
 }

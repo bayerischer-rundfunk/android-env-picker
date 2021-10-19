@@ -32,8 +32,7 @@ class MainViewModel(context: Context) : ViewModel() {
         )
 
     init {
-        envPicker.getActiveEntry(context)?.value
-            ?.let { _currentEndpoint.postValue(it) }
+        _currentEndpoint.postValue(envPicker.getActiveEntry(context).value)
     }
 
     fun onChangeEndpoint(fragmentManager: FragmentManager) {

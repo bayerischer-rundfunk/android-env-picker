@@ -44,7 +44,7 @@ internal class EnvViewModel<T : Entry>(
     }
 
     fun updateEntry(entry: T?, newName: String, newValues: List<String>) {
-        val newEntry = config.entryDescription.createEntry(newName, newValues)
+        val newEntry = config.entryDescription.createEntryFromInputs(newName, newValues)
         val newState = loadState().toMutableList()
         entry?.let {
             newState.remove(it)
