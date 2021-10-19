@@ -20,7 +20,7 @@ class SampleActivity : AppCompatActivity() {
             tvCurrentEndpoint.text = it
         }
         buttonChangeEndpoint.setOnClickListener {
-            viewModel.onChangeEndpoint(supportFragmentManager)
+            viewModel.onChangeEndpoint(this)
         }
     }
 }

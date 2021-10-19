@@ -1,6 +1,7 @@
 package de.br.envpicker
 
 import android.content.Context
+import android.content.Intent
 import androidx.fragment.app.Fragment
 
 /**
@@ -81,6 +82,8 @@ interface EnvPicker<T : Entry> {
      * Set the active [Entry] directly.
      */
     fun setActiveEntry(entry: T, context: Context)
+
+    fun startEnvPickerActivity(context: Context)
 }
 
 /**
@@ -125,6 +128,13 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
             getRepo(context).saveActiveEntry(entry)
         }
 
+        override fun startEnvPickerActivity(context: Context) {
+            ConfigStore.set(config.key, config)
+            context.startActivity(Intent(context, EnvActivity::class.java).apply {
+                putExtra(ConfigStore.KEY, config.key)
+            })
+        }
+
         private fun validateConfig(config: Config<T>) {
             if (config.key.isBlank())
                 throw IllegalArgumentException("The key can not be blank.")
@@ -136,7 +146,7 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
                 if (it.fields.size != config.entryDescription.fieldNames.size) {
                     throw IllegalArgumentException(
                         "A given default entry does not match the provided Entry description: " +
-                            "Wrong number of fields."
+                                "Wrong number of fields."
                     )
                 }
             }

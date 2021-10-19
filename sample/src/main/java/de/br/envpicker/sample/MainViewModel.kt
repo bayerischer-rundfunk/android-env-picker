@@ -1,7 +1,6 @@
 package de.br.envpicker.sample
 
 import android.content.Context
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -35,11 +34,8 @@ class MainViewModel(context: Context) : ViewModel() {
         _currentEndpoint.postValue(envPicker.getActiveEntry(context).value)
     }
 
-    fun onChangeEndpoint(fragmentManager: FragmentManager) {
-        fragmentManager.beginTransaction().replace(
-            R.id.root,
-            envPicker.createFragment()
-        ).commit()
+    fun onChangeEndpoint(context: Context) {
+        envPicker.startEnvPickerActivity(context)
     }
 
     @Suppress("UNCHECKED_CAST")

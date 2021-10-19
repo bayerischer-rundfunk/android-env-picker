@@ -21,6 +21,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="de.br.envpicker.EnvActivity"
+            android:theme="@style/Theme.EnvPicker.NoActionBar" />
     </application>
 
 </manifest>
