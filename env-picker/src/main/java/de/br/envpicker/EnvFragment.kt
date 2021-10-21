@@ -13,15 +13,26 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import de.br.envpicker.ConfigStore.KEY
 
-internal class EnvFragment<T : Entry>(private val config: Config<T>? = null) :
-    Fragment(R.layout.env_fragment) {
+internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
+
+    companion object {
+        fun <T : Entry> create(configKey: String) =
+            EnvFragment<T>().apply { arguments = createArgs(configKey) }
+
+        private fun createArgs(configKey: String) = Bundle().apply { putString(KEY, configKey) }
+    }
 
     private val recycler get() = view?.findViewById<RecyclerView>(R.id.recycler)
 
+    private val configKey
+        get() = requireArguments().getString(KEY)
+            ?: throw IllegalArgumentException("EnvFragment requires a configKey as argument.")
+
     private val viewModel by viewModels<EnvViewModel<T>> {
-        EnvViewModel.Factory(
-            config!!,
+        EnvViewModel.Factory<T>(
+            configKey,
             requireContext().applicationContext
         )
     }

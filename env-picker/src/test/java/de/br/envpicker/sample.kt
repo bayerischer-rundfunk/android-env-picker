@@ -5,10 +5,22 @@ import androidx.fragment.app.FragmentManager
 import com.google.gson.Gson
 import de.br.envpicker.mocks.getMockContext
 import de.br.envpicker.mocks.mockFragmentManager
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.mockkStatic
+import org.junit.Before
 import org.junit.Test
 import java.io.Serializable
 
 class SampleTest {
+
+    @Before
+    fun setup() {
+        mockkObject(EnvFragment)
+        every { EnvFragment.create<Endpoint>(any()) } returns mockk(relaxed = true)
+    }
+
     @Test
     fun `test Sample`() {
         envPickerSample(getMockContext(), mockFragmentManager)

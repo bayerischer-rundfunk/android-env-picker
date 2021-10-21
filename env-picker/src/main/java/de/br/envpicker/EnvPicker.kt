@@ -57,13 +57,6 @@ interface EnvPicker<T : Entry> {
     val config: Config<T>
 
     /**
-     * Create a [Fragment] that lets users manage the [Entry]s via UI. [Entry]s can be added,
-     * altered and deleted. One [Entry] can be selected as the active entry. On doing so, the App
-     * will restart.
-     */
-    fun createFragment(): Fragment
-
-    /**
      * Get the persisted [Entry]s directly.
      */
     fun getEntries(context: Context): List<T>
@@ -83,6 +76,17 @@ interface EnvPicker<T : Entry> {
      */
     fun setActiveEntry(entry: T, context: Context)
 
+    /**
+     * Create a [Fragment] that lets users manage the [Entry]s via UI. [Entry]s can be added,
+     * altered and deleted. One [Entry] can be selected as the active entry. On doing so, the App
+     * will restart.
+     */
+    fun createFragment(): Fragment
+
+    /**
+     * Start an Activity that lets users manage the [Entry]s via UI. It simply contains an
+     * [EnvFragment].
+     */
     fun startEnvPickerActivity(context: Context)
 }
 
@@ -113,7 +117,7 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
 
         override val config = config
 
-        override fun createFragment() = EnvFragment(config)
+        override fun createFragment() = EnvFragment.create<T>(config.key)
 
         override fun getEntries(context: Context): List<T> =
             getRepo(context).loadEntries()

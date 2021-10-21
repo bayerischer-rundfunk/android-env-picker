@@ -1,11 +1,7 @@
 package de.br.envpicker
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.jakewharton.processphoenix.ProcessPhoenix
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -83,12 +79,12 @@ internal class EnvViewModel<T : Entry>(
     }
 
     class Factory<T : Entry>(
-        private val config: Config<T>,
+        private val key: String,
         private val context: Context
-    ) :
-        ViewModelProvider.Factory {
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <V : ViewModel> create(modelClass: Class<V>): V {
+            val config = ConfigStore.get(key) as Config<T>
             return EnvViewModel(EnvRepository(config, context), config) as V
         }
     }

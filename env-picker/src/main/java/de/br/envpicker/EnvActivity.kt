@@ -3,17 +3,16 @@ package de.br.envpicker
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
-class EnvActivity : AppCompatActivity() {
+class EnvActivity<T : Entry> : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.env_activity)
 
         val configKey = intent.extras?.getString(ConfigStore.KEY)
-            ?: return
-        val config = ConfigStore.get(configKey)
+            ?: throw IllegalArgumentException("EnvActivity requires a configKey as Intent extra.")
         supportFragmentManager.beginTransaction()
-            .add(R.id.container, EnvFragment(config))
+            .add(R.id.container, EnvFragment.create<T>(configKey))
             .commit()
     }
 }
