@@ -7,7 +7,7 @@ android {
     compileSdk rootProject.compileSdkVersion
 
     defaultConfig {
-        applicationId "de.br.envpicker.sample"
+        applicationId "de.br.android.envpicker.sample"
         minSdk rootProject.minSdkVersion
         targetSdk rootProject.targetSdkVersion
         versionCode 1

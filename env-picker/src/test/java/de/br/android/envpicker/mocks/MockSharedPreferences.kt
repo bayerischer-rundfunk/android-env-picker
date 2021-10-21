@@ -1,4 +1,4 @@
-package de.br.envpicker.mocks
+package de.br.android.envpicker.mocks
 
 import android.content.SharedPreferences
 

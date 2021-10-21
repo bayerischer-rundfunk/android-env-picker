@@ -1,4 +1,4 @@
-package de.br.envpicker
+package de.br.android.envpicker.ui
 
 import android.content.DialogInterface
 import android.os.Bundle
@@ -13,7 +13,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import de.br.envpicker.ConfigStore.KEY
+import de.br.android.envpicker.ConfigStore.KEY
+import de.br.android.envpicker.Entry
+import de.br.android.envpicker.R
 
 internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
 

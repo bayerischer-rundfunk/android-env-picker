@@ -1,4 +1,4 @@
-package de.br.envpicker.sample
+package de.br.android.envpicker.sample
 
 import android.os.Bundle
 import android.widget.TextView

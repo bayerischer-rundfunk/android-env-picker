@@ -1,4 +1,4 @@
-package de.br.envpicker
+package de.br.android.envpicker
 
 import android.content.Context
 import java.lang.ref.WeakReference
@@ -8,7 +8,7 @@ internal class EnvRepository<T : Entry>(
     private val context: Context
 ) {
     companion object {
-        const val PREFS_KEY_BASE = "de.br.envpicker.prefs_entries."
+        const val PREFS_KEY_BASE = "de.br.android.envpicker.prefs_entries."
         const val PREFS_ENTRIES_KEY = "entries"
         const val PREFS_ACTIVE_ENTRY_KEY_KEY = "active_entry"
 

@@ -1,8 +1,12 @@
-package de.br.envpicker
+package de.br.android.envpicker.ui
 
 import android.content.Context
 import androidx.lifecycle.*
 import com.jakewharton.processphoenix.ProcessPhoenix
+import de.br.android.envpicker.Config
+import de.br.android.envpicker.ConfigStore
+import de.br.android.envpicker.Entry
+import de.br.android.envpicker.EnvRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

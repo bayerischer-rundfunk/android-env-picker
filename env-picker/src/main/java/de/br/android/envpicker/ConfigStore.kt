@@ -1,4 +1,4 @@
-package de.br.envpicker
+package de.br.android.envpicker
 
 import java.lang.ref.WeakReference
 

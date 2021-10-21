@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.br.envpicker.sample">
+    package="de.br.android.envpicker.sample">
 
     <application
         android:allowBackup="true"
@@ -23,7 +23,7 @@
         </activity>
 
         <activity
-            android:name="de.br.envpicker.EnvActivity"
+            android:name="de.br.android.envpicker.ui.EnvActivity"
             android:theme="@style/Theme.EnvPicker.NoActionBar" />
     </application>
 

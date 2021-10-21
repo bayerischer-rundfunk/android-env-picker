@@ -1,7 +1,10 @@
-package de.br.envpicker
+package de.br.android.envpicker.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import de.br.android.envpicker.ConfigStore
+import de.br.android.envpicker.Entry
+import de.br.android.envpicker.R
 
 class EnvActivity<T : Entry> : AppCompatActivity() {
 

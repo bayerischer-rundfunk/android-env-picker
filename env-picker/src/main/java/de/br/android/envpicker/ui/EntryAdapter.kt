@@ -1,4 +1,4 @@
-package de.br.envpicker
+package de.br.android.envpicker.ui
 
 import android.content.Context
 import android.content.res.TypedArray
@@ -13,6 +13,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import de.br.android.envpicker.Entry
+import de.br.android.envpicker.R
 
 internal class EntryAdapter<T : Entry>(
     private val primaryClickListener: (EntryContainer<T>, View) -> Unit,

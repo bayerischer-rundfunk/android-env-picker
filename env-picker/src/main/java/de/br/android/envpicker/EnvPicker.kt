@@ -1,8 +1,10 @@
-package de.br.envpicker
+package de.br.android.envpicker
 
 import android.content.Context
 import android.content.Intent
 import androidx.fragment.app.Fragment
+import de.br.android.envpicker.ui.EnvActivity
+import de.br.android.envpicker.ui.EnvFragment
 
 /**
  * Configuration of an EnvPicker instance.
@@ -100,8 +102,8 @@ interface EnvPicker<T : Entry> {
  * @param config a valid [Config] object
  * @param context to be used to access SharedPreferences and resources
  *
- * @sample de.br.envpicker.Endpoint
- * @sample de.br.envpicker.envPickerSample
+ * @sample de.br.android.envpicker.Endpoint
+ * @sample de.br.android.envpicker.envPickerSample
  */
 fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
     object : EnvPicker<T> {

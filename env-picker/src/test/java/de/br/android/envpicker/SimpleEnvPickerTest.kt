@@ -1,7 +1,7 @@
-package de.br.envpicker
+package de.br.android.envpicker
 
 import android.content.Context
-import de.br.envpicker.mocks.getMockContext
+import de.br.android.envpicker.mocks.getMockContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
