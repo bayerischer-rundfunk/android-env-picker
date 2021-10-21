@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ep_dialog_cancel">Cancel</string>
+    <string name="ep_dialog_ok">OK</string>
+    <string name="ep_dialog_remove">Remove</string>
+    <string name="ep_dialog_change_entry_title">Change active entry</string>
+    <string name="ep_dialog_change_entry_message">Do you want to change the active entry and restart the app?</string>
+    <string name="ep_dialog_change_entry_restart">Restart</string>
+    <string name="content_desc_add_entry">Add entry</string>
+</resources>
