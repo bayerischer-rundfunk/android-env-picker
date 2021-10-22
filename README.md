@@ -9,90 +9,7 @@ be handled as well. The app will restart after making a change.
 
 All data is persisted via `SharedPreferences`. The method of serialization can be customized.
 
-## Configuration
-
-Check out the project as git submodule
-
-```bash
-git submodule add https://github.com/digitalegarage/android-env-picker
-```
-
-Then add it to your Android project as module by adding to your `settings.gradle`
-
-```groovy
-include ':android-env-picker'
-```
-
-Finally, add the dependency to the module that will use the library
-
-```groovy
-implementation project(path: ':android-env-picker')
-```
-
 ## Usage
-
-This example is taken from the ARD Audiothek code that manages the AMS endpoint in debug mode.
-
-```kotlin
-
-// use the predefined SimpleEntry data class, but alias it to make the code more readable
-private typealias AMSEndpoint = SimpleEntry
-
-class AMSEndpointManager(
-    private val context: Context
-) {
-    private companion object {
-        // which endpoints to select from per default
-        object DefaultAMSEndpoints {
-            val LIVE = AMSEndpoint("Live", "accounts.ard.de")
-            val BETA = AMSEndpoint("Beta", "accounts-beta.ard.de")
-            val TEST = AMSEndpoint("Test", "accounts-test.ard.de")
-            val DEV = AMSEndpoint("Dev", "accounts-dev.ard.de")
-
-            val all = listOf(LIVE, BETA, TEST, DEV)
-        }
-    }
-
-    // an instance of EnvPicker, which is the interface to all functions of the library
-    private val envPicker: EnvPicker<AMSEndpoint> by lazy {
-        if (BuildConfig.INSPECT) initEnvPicker()
-        else illegal() // never instantiate in a live app
-    }
-
-    // the central information that we care about
-    fun getCurrentEndpointUrl(): String =
-        if (BuildConfig.INSPECT)
-            envPicker.getActiveEntry(context).value
-                .let { (_, url) -> URL("https", url, "/").toString() }
-        else BuildConfig.AMS_ENDPOINT
-
-    // this is called from the settings screen
-    fun getCurrentEndpointName(): String = envPicker.getActiveEntry(context).name
-
-    // this is called from the settings screen
-    fun createEndpointsFragment(): Fragment = envPicker.createFragment()
-
-    private fun initEnvPicker() = envPicker(
-        "amsEndpoints", // used as sharedPrefs key
-        "Choose AMS Endpoint", // displayed as fragment title
-        DefaultAMSEndpoints.all, // which endpoints to select from per default
-        getDefaultEndpoint(), // which endpoint should be active per default
-        context // used to retrieve resources and SharedPreferences
-    )
-
-    // set default endpoint depending on build flavor
-    private fun getDefaultEndpoint() = when (BuildConfig.FLAVOR) {
-        "master" -> illegal()
-        "inspect" -> DefaultAMSEndpoints.LIVE
-        else -> DefaultAMSEndpoints.BETA
-    }
-
-    private fun illegal(): Nothing =
-        throw IllegalStateException("AMS env picker should not be used in prod builds.")
-}
-
-
-```
 
 ## Advanced Usage
 
@@ -160,6 +77,9 @@ endpointPicker.setEntries(
 )
 
 // show management UI
+endpointPicker.startEnvPickerActivity(context)
+
+// or handle the fragment yourself
 fragmentManager
     .beginTransaction()
     .add(endpointPicker.createFragment(), "endpointPicker")
@@ -168,4 +88,4 @@ fragmentManager
 
 ## Maintainers
 
-Leon Busse
+- leonbusse
