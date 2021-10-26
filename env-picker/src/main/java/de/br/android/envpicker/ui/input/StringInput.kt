@@ -16,6 +16,8 @@ class StringInput @JvmOverloads constructor(
         input.setText(defaultValue)
         input.layoutParams = suggestedLayoutParams
         input.textAlignment = TEXT_ALIGNMENT_TEXT_END
+        input.setSingleLine()
+        input.setHorizontallyScrolling(true)
         return input
     }
 

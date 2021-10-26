@@ -21,7 +21,7 @@ abstract class BaseInput<T : Any> @JvmOverloads constructor(
         label.layoutParams = LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT,
-            1f
+            2f
         )
         label.text = labelStr
 

@@ -117,6 +117,7 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
 
         init {
             validateConfig(config)
+            ConfigStore.set(config.key, config)
             setupDefaultEntries(context)
         }
 
@@ -142,7 +143,6 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
         }
 
         override fun startEnvPickerActivity(context: Context) {
-            ConfigStore.set(config.key, config)
             context.startActivity(Intent(context, EnvActivity::class.java).apply {
                 putExtra(ConfigStore.KEY, config.key)
             })
