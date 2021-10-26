@@ -5,16 +5,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import de.br.android.envpicker.SimpleEntry
-import de.br.android.envpicker.envPicker
+import com.google.gson.Gson
+import de.br.android.envpicker.*
 
 class MainViewModel(context: Context) : ViewModel() {
     companion object {
         val defaultEndpoints =
             listOf(
-                SimpleEntry("Google", "google.com"),
-                SimpleEntry("Bing", "bing.com"),
-                SimpleEntry("Ecosia", "ecosia.org"),
+                EnvConfig("Google", "google.com", 1, true),
+                EnvConfig("Bing", "bing.com", 2, false),
+                EnvConfig("Ecosia", "ecosia.org", 3, true),
             )
         val defaultEndpoint = defaultEndpoints[0]
     }
@@ -24,15 +24,29 @@ class MainViewModel(context: Context) : ViewModel() {
 
     private val envPicker =
         envPicker(
-            "envPickerSample",
-            "Pick an endpoint!",
-            defaultEndpoints,
-            defaultEndpoint,
+            Config(
+                "envPickerSample",
+                "Pick an endpoint!",
+                EntryDescription(
+                    listOf(
+                        FieldDescription("URL", FieldType.String),
+                        FieldDescription("Retry Count", FieldType.Int),
+                        FieldDescription("Allow HTTP", FieldType.Boolean),
+                    ),
+                    { name, fields ->
+                        EnvConfig(name, fields[0] as String, fields[1] as Int, fields[2] as Boolean)
+                    },
+                    { Gson().toJson(it) },
+                    { Gson().fromJson(it, EnvConfig::class.java) },
+                ),
+                defaultEndpoints,
+                defaultEndpoint
+            ),
             context
         )
 
     init {
-        _currentEndpoint.postValue(envPicker.getActiveEntry(context).value)
+        _currentEndpoint.postValue(envPicker.getActiveEntry(context).url)
     }
 
     fun onChangeEndpoint(context: Context) {

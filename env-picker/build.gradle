@@ -4,6 +4,12 @@ plugins {
     id 'org.jetbrains.dokka' version '1.5.30'
 }
 
+ext {
+    PUBLISH_GROUP_ID = 'de.br.android'
+    PUBLISH_VERSION = '0.1.0'
+    PUBLISH_ARTIFACT_ID = 'envpicker'
+}
+
 android {
     compileSdkVersion rootProject.compileSdkVersion
     buildToolsVersion rootProject.buildToolsVersion
@@ -12,7 +18,7 @@ android {
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
         versionCode 1
-        versionName "0.0.1"
+        versionName PUBLISH_VERSION
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -60,3 +66,5 @@ tasks.withType(DokkaTask) {
         }
     }
 }
+
+apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"

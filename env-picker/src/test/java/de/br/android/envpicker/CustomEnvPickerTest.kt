@@ -20,18 +20,18 @@ class CustomEnvPickerTest {
         override val name: String
             get() = key
 
-        override val fields: List<String>
+        override val fields: List<Any>
             get() = listOf(
-                intField.toString(),
+                intField,
                 stringField,
-                booleanField.toString(),
+                booleanField,
                 charField.toString()
             )
 
         override val summary: String
             get() = fields
                 .slice(1 until fields.size)
-                .joinToString(separator = ", ") { it }
+                .joinToString(separator = ", ") { it.toString() }
     }
 
     private lateinit var context: Context
@@ -65,18 +65,18 @@ class CustomEnvPickerTest {
         "Test Fragment",
         EntryDescription(
             listOf(
-                "IntField",
-                "StringField",
-                "BooleanField",
-                "CharField"
+                FieldDescription("IntField", FieldType.Int),
+                FieldDescription("StringField", FieldType.String),
+                FieldDescription("BooleanField", FieldType.Boolean),
+                FieldDescription("CharField", FieldType.String),
             ),
             { name, fields ->
                 CustomEntry(
                     name,
-                    fields[0].toInt(),
-                    fields[1],
-                    fields[2].toBoolean(),
-                    fields[3].single()
+                    fields[0] as Int,
+                    fields[1] as String,
+                    fields[2] as Boolean,
+                    (fields[3] as String).single()
                 )
             },
             { entry -> Gson().toJson(entry) },
@@ -118,6 +118,21 @@ class CustomEnvPickerTest {
             validConfig.copy(key = " "),
             context
         )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `invalid config - FieldType does not match field implementation`() {
+        val fieldDescriptions = validConfig.entryDescription.fieldDescriptions.toMutableList()
+        fieldDescriptions[0] = fieldDescriptions[0].copy(type = FieldType.Boolean)
+        envPicker(
+            validConfig.copy(entryDescription = validConfig.entryDescription.copy(fieldDescriptions = fieldDescriptions)),
+            context
+        )
+    }
+
+    @Test
+    fun `validate valid config`() {
+        setupEnvPicker()
     }
 
     @Test

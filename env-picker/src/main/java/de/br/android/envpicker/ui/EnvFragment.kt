@@ -1,21 +1,26 @@
 package de.br.android.envpicker.ui
 
+import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.br.android.envpicker.ConfigStore.KEY
 import de.br.android.envpicker.Entry
+import de.br.android.envpicker.FieldDescription
+import de.br.android.envpicker.FieldType
 import de.br.android.envpicker.R
+import de.br.android.envpicker.ui.input.BaseInput
+import de.br.android.envpicker.ui.input.BooleanInput
+import de.br.android.envpicker.ui.input.IntInput
+import de.br.android.envpicker.ui.input.StringInput
 
 internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
 
@@ -69,16 +74,14 @@ internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
         val context = context ?: return
         val dialogView =
             LayoutInflater.from(requireContext()).inflate(R.layout.edit_entry_dialog, null)
-        val nameEditText = dialogView.findViewById<EditText>(R.id.et_name)
-            .apply { setText(entryContainer?.entry?.name) }
         val valuesContainer = dialogView.findViewById<ViewGroup>(R.id.ll_values)
-        val editTexts = viewModel.config.entryDescription.fieldNames
-            .mapIndexed { i, fieldName ->
-                val editText = AppCompatEditText(context)
-                editText.hint = fieldName
-                entryContainer?.entry?.fields?.getOrNull(i)
-                    ?.let { editText.setText(it) }
-                editText
+        val nameInput = StringInput(context)
+            .apply { init("Name", entryContainer?.entry?.name ?: "") }
+        valuesContainer.addView(nameInput)
+        val inputs: List<BaseInput<*>> = viewModel.config.entryDescription.fieldDescriptions
+            .mapIndexed { i, fieldDesc ->
+                val defaultValue = entryContainer?.entry?.fields?.getOrNull(i)
+                createInput(defaultValue, fieldDesc, context)
             }
             .onEach { valuesContainer.addView(it) }
 
@@ -86,7 +89,7 @@ internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
             .setCancelable(true)
             .setNegativeButton(getString(R.string.ep_dialog_cancel)) { _, _ -> }
             .setPositiveButton(getString(R.string.ep_dialog_ok)) { _, _ ->
-                onUpdateEntry(entryContainer, nameEditText, editTexts)
+                onUpdateEntry(entryContainer, nameInput.value, inputs.map { it.value })
             }
             .setView(dialogView)
 
@@ -99,39 +102,54 @@ internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
         dialogBuilder.show()
     }
 
+    private fun createInput(
+        defaultValue: Any?,
+        fieldDesc: FieldDescription,
+        context: Context
+    ): BaseInput<*> =
+        when (fieldDesc.type) {
+            FieldType.String ->
+                (defaultValue?.let { defaultValue as String } ?: "")
+                    .let { StringInput(context).apply { init(fieldDesc.name, it) } }
+            FieldType.Int ->
+                (defaultValue?.toString()?.toInt() ?: 0)
+                    .let { IntInput(context).apply { init(fieldDesc.name, it) } }
+            FieldType.Boolean ->
+                (defaultValue?.let { it as Boolean } ?: false)
+                    .let { BooleanInput(context).apply { init(fieldDesc.name, it) } }
+        }
+
     private fun onUpdateEntry(
         entryContainer: EntryContainer<T>?,
-        nameEditText: EditText,
-        editTexts: List<EditText>
+        nameValue: String,
+        inputsValues: List<Any>
     ) {
-        if (entryContainer?.active == true) {
+        if (entryContainer?.active == true)
             showConfirmRestartDialog { _, _ ->
                 viewModel.updateEntryAndRestart(
                     entryContainer.entry,
-                    nameEditText.text.toString(),
-                    editTexts.map { it.text.toString() },
+                    nameValue,
+                    inputsValues,
                     requireContext()
                 )
             }
-        } else {
-            viewModel.updateEntry(
-                entryContainer?.entry,
-                nameEditText.text.toString(),
-                editTexts.map { it.text.toString() }
-            )
-        }
+        else viewModel.updateEntry(
+            entryContainer?.entry,
+            nameValue,
+            inputsValues
+        )
     }
 
-    private fun showConfirmRestartDialog(
-        positiveAction: DialogInterface.OnClickListener
-    ) {
+    private fun showConfirmRestartDialog(positiveAction: DialogInterface.OnClickListener) =
         AlertDialog.Builder(requireContext())
             .setCancelable(true)
             .setTitle(getString(R.string.ep_dialog_change_entry_title))
             .setMessage(getString(R.string.ep_dialog_change_entry_message))
-            .setPositiveButton(getString(R.string.ep_dialog_change_entry_restart), positiveAction)
+            .setPositiveButton(
+                getString(R.string.ep_dialog_change_entry_restart),
+                positiveAction
+            )
             .setNegativeButton(getString(R.string.ep_dialog_cancel)) { _, _ -> }
             .show()
-    }
 }
 
