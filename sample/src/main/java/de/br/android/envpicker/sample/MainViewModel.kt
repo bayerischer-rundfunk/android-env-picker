@@ -8,19 +8,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import de.br.android.envpicker.*
 
-data class EnvConfig(
-    override val name: String,
-    val url: String,
-    val retryCount: Int,
-    val forceHttps: Boolean
-) : Entry {
-    override val fields: List<Any>
-        get() = listOf(url, retryCount, forceHttps)
-
-    override val summary: String
-        get() = "$url, $retryCount retries" + if (forceHttps) ", forceHttps" else ""
-}
-
 class MainViewModel(context: Context) : ViewModel() {
     companion object {
         val defaultEndpoints =

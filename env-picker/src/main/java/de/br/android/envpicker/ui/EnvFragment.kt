@@ -124,7 +124,7 @@ internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
         nameValue: String,
         inputsValues: List<Any>
     ) {
-        if (entryContainer?.active == true) {
+        if (entryContainer?.active == true)
             showConfirmRestartDialog { _, _ ->
                 viewModel.updateEntryAndRestart(
                     entryContainer.entry,
@@ -133,18 +133,14 @@ internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
                     requireContext()
                 )
             }
-        } else {
-            viewModel.updateEntry(
-                entryContainer?.entry,
-                nameValue,
-                inputsValues
-            )
-        }
+        else viewModel.updateEntry(
+            entryContainer?.entry,
+            nameValue,
+            inputsValues
+        )
     }
 
-    private fun showConfirmRestartDialog(
-        positiveAction: DialogInterface.OnClickListener
-    ) {
+    private fun showConfirmRestartDialog(positiveAction: DialogInterface.OnClickListener) =
         AlertDialog.Builder(requireContext())
             .setCancelable(true)
             .setTitle(getString(R.string.ep_dialog_change_entry_title))
@@ -155,6 +151,5 @@ internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
             )
             .setNegativeButton(getString(R.string.ep_dialog_cancel)) { _, _ -> }
             .show()
-    }
 }
 
