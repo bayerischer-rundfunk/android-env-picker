@@ -5,13 +5,6 @@
     android:orientation="vertical"
     android:padding="32dp">
 
-    <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/et_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Name"
-        android:inputType="text" />
-
     <LinearLayout
         android:id="@+id/ll_values"
         android:layout_width="match_parent"
