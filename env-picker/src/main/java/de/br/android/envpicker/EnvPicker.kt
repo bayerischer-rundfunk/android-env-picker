@@ -27,16 +27,23 @@ data class Config<T : Entry>(
  * A class providing structural information and methods for serialization as well as creation of
  * an [Entry] class.
  *
- * @property fieldNames the names of the fields associated with the [Entry]
+ * @property fieldDescriptions the names of the fields associated with the [Entry]
  * @property createEntryFromInputs used to instantiate [Entry]s from text inputs
  * @property serializeEntry used to serialize the [Entry] implementation
  * @property deserializeEntry used to deserialize the [Entry] implementation
  */
 class EntryDescription<T : Entry>(
-    val fieldNames: List<String>,
-    val createEntryFromInputs: (String, List<String>) -> T,
+    val fieldDescriptions: List<FieldDescription>,
+    val createEntryFromInputs: (String, List<Any>) -> T,
     val serializeEntry: (T) -> String,
     val deserializeEntry: (String) -> T,
+)
+
+enum class FieldType { String, Int, Boolean }
+
+class FieldDescription(
+    val name: String,
+    val type: FieldType
 )
 
 /**
@@ -45,7 +52,7 @@ class EntryDescription<T : Entry>(
 interface Entry {
     val name: String
     val summary: String
-    val fields: List<String>
+    val fields: List<Any>
 }
 
 /**
@@ -149,7 +156,7 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
                     "The defaultActiveEntry must be included in the defaultEntries. Duh."
                 )
             config.defaultEntries.forEach {
-                if (it.fields.size != config.entryDescription.fieldNames.size) {
+                if (it.fields.size != config.entryDescription.fieldDescriptions.size) {
                     throw IllegalArgumentException(
                         "A given default entry does not match the provided Entry description: " +
                                 "Wrong number of fields."
@@ -213,8 +220,8 @@ data class SimpleEntry(
 }
 
 private val SimpleEntryDescription = EntryDescription(
-    listOf("Value"),
-    { name, values -> SimpleEntry(name, values[0]) },
+    listOf(FieldDescription("Value", FieldType.String)),
+    { name, values -> SimpleEntry(name, values[0] as String) },
     { entry -> "${entry.name}$SEP${entry.value}" },
     { str -> str.split(SEP).let { SimpleEntry(it[0], it[1]) } },
 )
@@ -271,9 +278,10 @@ data class MultiEntry(
     operator fun get(i: Int) = fields[i]
 }
 
+@Suppress("UNCHECKED_CAST")
 private fun multiEntryDescription(fieldNames: List<String>) = EntryDescription(
-    fieldNames,
-    { name, values -> MultiEntry(name, values) },
+    fieldNames.map { FieldDescription(it, FieldType.String) },
+    { name, values -> MultiEntry(name, values as List<String>) },
     { entry -> "${entry.name}$SEP" + entry.fields.joinToString(separator = SEP) { it } },
     { str -> str.split(SEP).let { MultiEntry(it[0], it.slice(1 until it.size)) } },
 )
