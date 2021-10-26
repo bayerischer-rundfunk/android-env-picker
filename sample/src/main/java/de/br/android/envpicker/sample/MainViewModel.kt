@@ -31,7 +31,7 @@ class MainViewModel(context: Context) : ViewModel() {
                     listOf(
                         FieldDescription("URL", FieldType.String),
                         FieldDescription("Retry Count", FieldType.Int),
-                        FieldDescription("Force HTTPS", FieldType.Boolean),
+                        FieldDescription("Allow HTTP", FieldType.Boolean),
                     ),
                     { name, fields ->
                         EnvConfig(name, fields[0] as String, fields[1] as Int, fields[2] as Boolean)

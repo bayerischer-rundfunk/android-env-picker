@@ -6,11 +6,11 @@ data class EnvConfig(
     override val name: String,
     val url: String,
     val retryCount: Int,
-    val forceHttps: Boolean
+    val allowHttp: Boolean
 ) : Entry {
     override val fields: List<Any>
-        get() = listOf(url, retryCount, forceHttps)
+        get() = listOf(url, retryCount, allowHttp)
 
     override val summary: String
-        get() = "$url, $retryCount retries" + if (forceHttps) ", forceHttps" else ""
+        get() = "$url, $retryCount retries" + if (allowHttp) ", allowHttp" else ""
 }

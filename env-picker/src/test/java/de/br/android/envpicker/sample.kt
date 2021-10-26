@@ -56,9 +56,15 @@ fun envPickerSample(
             "endpointsPickerSample", // used as sharedPrefs key
             "Choose Endpoint", // displayed as fragment title
             EntryDescription(
-                listOf("URL", "User", "Password"), // these will be displayed as title of TextEdits
+                listOf(
+                    FieldDescription("URL", FieldType.String),
+                    FieldDescription("User", FieldType.String),
+                    FieldDescription("Password", FieldType.String),
+                ), // these will be displayed as title of TextEdits
                 // how to create an Endpoint
-                { name, fields -> Endpoint(name, fields[0], fields[1], fields[2]) },
+                { name, fields ->
+                    Endpoint(name, fields[0] as String, fields[1] as String, fields[2] as String)
+                },
                 // how to serialize it using Gson, you can use any serialization method you like
                 { entry -> Gson().toJson(entry) },
                 // and how to deserialize it

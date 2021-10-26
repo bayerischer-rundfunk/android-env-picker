@@ -6,52 +6,24 @@ import androidx.fragment.app.Fragment
 import de.br.android.envpicker.ui.EnvActivity
 import de.br.android.envpicker.ui.EnvFragment
 
-/**
- * Configuration of an EnvPicker instance.
- *
- * @property key used as SharedPreferences key
- * @property fragmentTitle displayed as title of fragment
- * @property entryDescription providing meta info about the Entry class to be used
- * @property defaultEntries will be set as initial values if no entries are present at init time
- * @property defaultActiveEntry will be set as initial active entry
- */
-data class Config<T : Entry>(
-    val key: String,
-    val fragmentTitle: String,
-    val entryDescription: EntryDescription<T>,
-    val defaultEntries: List<T> = listOf(),
-    val defaultActiveEntry: T
-)
-
-/**
- * A class providing structural information and methods for serialization as well as creation of
- * an [Entry] class.
- *
- * @property fieldDescriptions the names of the fields associated with the [Entry]
- * @property createEntryFromInputs used to instantiate [Entry]s from text inputs
- * @property serializeEntry used to serialize the [Entry] implementation
- * @property deserializeEntry used to deserialize the [Entry] implementation
- */
-class EntryDescription<T : Entry>(
-    val fieldDescriptions: List<FieldDescription>,
-    val createEntryFromInputs: (String, List<Any>) -> T,
-    val serializeEntry: (T) -> String,
-    val deserializeEntry: (String) -> T,
-)
-
-enum class FieldType { String, Int, Boolean }
-
-class FieldDescription(
-    val name: String,
-    val type: FieldType
-)
 
 /**
  * An entry to be managed and persisted by the EnvPicker library.
  */
 interface Entry {
+    /**
+     * The name that will be displayed in the entry selection screen.
+     */
     val name: String
+
+    /**
+     * The description that will be displayed in the entry selection screen.
+     */
     val summary: String
+
+    /**
+     * The fields that will be managed and persisted in addition to the name..
+     */
     val fields: List<Any>
 }
 
@@ -116,7 +88,7 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
     object : EnvPicker<T> {
 
         init {
-            validateConfig(config)
+            config.validate()
             ConfigStore.set(config.key, config)
             setupDefaultEntries(context)
         }
@@ -148,23 +120,6 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
             })
         }
 
-        private fun validateConfig(config: Config<T>) {
-            if (config.key.isBlank())
-                throw IllegalArgumentException("The key can not be blank.")
-            if (config.defaultActiveEntry !in config.defaultEntries)
-                throw IllegalArgumentException(
-                    "The defaultActiveEntry must be included in the defaultEntries. Duh."
-                )
-            config.defaultEntries.forEach {
-                if (it.fields.size != config.entryDescription.fieldDescriptions.size) {
-                    throw IllegalArgumentException(
-                        "A given default entry does not match the provided Entry description: " +
-                                "Wrong number of fields."
-                    )
-                }
-            }
-        }
-
         private fun setupDefaultEntries(context: Context) {
             if (getEntries(context).isNullOrEmpty()) {
                 setEntries(config.defaultEntries, context)
@@ -176,7 +131,7 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
     }
 
 /**
- * A simple interface if only one value needs to be stored per entry.
+ * A simple interface if only one String value needs to be stored per entry.
  *
  * @param key used as SharedPreferences key
  * @param fragmentTitle displayed as title of fragment
@@ -227,8 +182,8 @@ private val SimpleEntryDescription = EntryDescription(
 )
 
 /**
- * A simple interface for storing multiple values per entry. Accessing those values needs to be
- * done via index, so using a custom data class implementing [Entry] might be advisable.
+ * A simple interface for storing multiple String values per entry. Accessing those values needs to
+ * be done via index, so using a custom data class implementing [Entry] might be advisable.
  *
  * @param key used as SharedPreferences key
  * @param fragmentTitle displayed as title of fragment
@@ -257,11 +212,11 @@ fun envPicker(
     )
 
 /**
- * An implementation of [Entry] that can hold an arbitrary number of fields in addition to the
- * name field.
+ * An implementation of [Entry] that can hold an arbitrary number of String fields in addition to
+ * the name field.
  *
- * @param name The unique name of this [Entry] displayed in the UI and used as key
- * @param fields A list of [String] values matching the order of field names defined at library initialization
+ * @param name The unique name of this [Entry] displayed in the UI and used as key.
+ * @param fields A list of [String] values matching the order of field names defined at library initialization.
  */
 data class MultiEntry(
     override var name: String,
