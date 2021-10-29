@@ -1,9 +1,15 @@
 # EnvPicker
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.br.android/envpicker/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/de.br.android/envpicker)
+![example workflow](https://github.com/bayerischer-rundfunk/android-env-picker/actions/workflows/main.yml/badge.svg)
+
 An Android Library for in-app switching between environment variables.
 
 Central use case is picking a desired endpoint for backend communication, but more complex data
 structures can be handled as well. The app will restart after making a change.
+
+![](static/envpicker-overview.jpg)
+![](static/envpicker-dialog.jpg)
 
 ## Setup
 
