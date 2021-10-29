@@ -174,6 +174,14 @@ The currently supported types for custom data class fields are:
 - Int
 - Boolean
 
+## Contribute
+
+Have a look at the [contribution guidelines](./CONTRIBUTING.md) to get started! Please also read the [code of conduct](./CODE_OF_CONDUCT.md).
+
 ## Maintainers
 
 - leonbusse
+
+## License
+
+Apache 2.0. See the [LICENSE](./LICENSE.txt) file for details.
