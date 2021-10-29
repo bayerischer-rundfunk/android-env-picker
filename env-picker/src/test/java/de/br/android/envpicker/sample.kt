@@ -1,6 +1,7 @@
 package de.br.android.envpicker
 
 import android.content.Context
+import android.content.Intent
 import androidx.fragment.app.FragmentManager
 import com.google.gson.Gson
 import de.br.android.envpicker.mocks.getMockContext
@@ -8,6 +9,7 @@ import de.br.android.envpicker.mocks.mockFragmentManager
 import de.br.android.envpicker.ui.EnvFragment
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import org.junit.Before
 import org.junit.Test
@@ -19,6 +21,8 @@ class SampleTest {
     fun setup() {
         mockkObject(EnvFragment)
         every { EnvFragment.create<Endpoint>(any()) } returns mockk(relaxed = true)
+        mockkConstructor(Intent::class)
+        every { anyConstructed<Intent>().putExtra(any(), any<String>()) } returns mockk()
     }
 
     @Test
