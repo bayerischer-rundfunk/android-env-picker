@@ -2,6 +2,11 @@ package de.br.android.envpicker.mocks
 
 import android.content.SharedPreferences
 
+/**
+ * An in-memory implementation of a small subset of the SharedPreferences interface. Specifically
+ * made for testing envPicker, which only uses Strings and StringSets. Methods relating to other
+ * types just throw NotImplementedError.
+ */
 class MockSharedPreferences : SharedPreferences {
     private val strings = mutableMapOf<String, String>()
     private val stringSets = mutableMapOf<String, Set<String>>()
