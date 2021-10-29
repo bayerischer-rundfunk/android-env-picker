@@ -31,15 +31,16 @@ class SampleTest {
 
     @Test
     fun `test multi sample`() {
-        envPickerSampleMulti(getMockContext(), mockFragmentManager)
+        envPickerSampleMulti(getMockContext())
     }
 
     @Test
     fun `test complex sample`() {
-        envPickerSample(getMockContext(), mockFragmentManager)
+        envPickerSample(getMockContext())
     }
 }
 
+@Suppress("UNUSED_VARIABLE")
 fun envPickerSampleSimple(
     context: Context,
     fragmentManager: FragmentManager
@@ -85,9 +86,9 @@ fun envPickerSampleSimple(
         .commit()
 }
 
+@Suppress("UNUSED_VARIABLE")
 fun envPickerSampleMulti(
-    context: Context,
-    fragmentManager: FragmentManager
+    context: Context
 ) {
 
     // We can use multiple String values with MultiEntry
@@ -130,9 +131,9 @@ data class Endpoint(
         get() = "$url, $retryCount retries" + if (allowHttp) ", allowHttp" else ""
 }
 
+@Suppress("UNUSED_VARIABLE")
 fun envPickerSample(
-    context: Context,
-    fragmentManager: FragmentManager
+    context: Context
 ) {
 
     // use the custom data class
