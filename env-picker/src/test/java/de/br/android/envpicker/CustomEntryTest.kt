@@ -8,7 +8,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class CustomEnvPickerTest {
+class CustomEntryTest {
 
     private data class CustomEntry(
         val key: String,

@@ -7,13 +7,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class SimpleEnvPickerTest {
+class MultiEntryTest {
     private lateinit var context: Context
 
-    private val defaultEndpoint1 = SimpleEntry("entry #1", "some value")
+    private val defaultEndpoint1 = MultiEntry("entry #1", "some value", "other8#\$value-nj")
     private val defaultEndpoint2 =
-        SimpleEntry("entry #2", "some unusual symbols in this one <|$)(!_)~``öäëïü|><")
-    private val endpoint3 = SimpleEntry("entry #3", "random.qwerty.com")
+        MultiEntry("entry #2", "some unusual symbols in this one <|$)(!_)~``öäëïü|><", "")
+    private val endpoint3 = MultiEntry("entry #3", "", "random.qwerty.com")
 
     private val defaultEntries = listOf(defaultEndpoint1, defaultEndpoint2)
     private val defaultActiveEntry = defaultEntries[1]
@@ -21,6 +21,7 @@ class SimpleEnvPickerTest {
     private fun setupEnvPicker() = envPicker(
         this::class.java.name,
         "Test Fragment",
+        listOf("field1", "field2"),
         defaultEntries,
         defaultActiveEntry,
         context
@@ -36,6 +37,7 @@ class SimpleEnvPickerTest {
         envPicker(
             "Test Fragment",
             "testPrefsKey",
+            listOf("field1", "field2"),
             listOf(),
             defaultActiveEntry,
             context
@@ -47,6 +49,7 @@ class SimpleEnvPickerTest {
         envPicker(
             "Test Fragment",
             "testPrefsKey",
+            listOf("field1", "field2"),
             defaultEntries,
             endpoint3,
             context
@@ -58,6 +61,19 @@ class SimpleEnvPickerTest {
         envPicker(
             " ",
             "testPrefsKey",
+            listOf("field1", "field2"),
+            defaultEntries,
+            defaultEndpoint1,
+            context
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `invalid config - wrong number of field names`() {
+        envPicker(
+            " ",
+            "testPrefsKey",
+            listOf("field1"),
             defaultEntries,
             defaultEndpoint1,
             context
@@ -92,7 +108,7 @@ class SimpleEnvPickerTest {
     @Test(expected = IllegalStateException::class)
     fun `getActiveEntry on misconfigured data`() {
         val envPicker = setupEnvPicker()
-        envPicker.setActiveEntry(SimpleEntry("not in the db", "someValue"), context)
+        envPicker.setActiveEntry(MultiEntry("not in the db", "someValue"), context)
 
         envPicker.getActiveEntry(context)
     }
