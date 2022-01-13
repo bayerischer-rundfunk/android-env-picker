@@ -11,6 +11,7 @@ fun getMockContext(): Context {
     val context = mockk<Context>()
     val mockSharedPreferences = MockSharedPreferences()
     every { context.getSharedPreferences(any(), any()) } returns mockSharedPreferences
+    every { context.startActivity(any()) } returns Unit
     return context
 }
 
