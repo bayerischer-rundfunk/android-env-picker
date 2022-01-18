@@ -18,6 +18,20 @@ interface Entry {
 }
 
 /**
+ * An implementation of [Entry] representing a single key-value pair.
+ *
+ * @param name The unique name of this [Entry] displayed in the UI and used as key
+ * @param value The [String] value of this [Entry]
+ */
+data class KeyValueEntry(
+    @EntryField("Name")
+    override var name: String,
+    @EntryField("Value")
+    var value: String,
+) : Entry
+
+
+/**
  * Needs to be applied to all parameters of an [Entry]'s primary constructor.
  * @param label will appear in the UI as label for the corresponding field.
  */

@@ -27,15 +27,15 @@ dependencies {
 
 ## Usage
 
-For simple use cases a key-value pair is a sufficient data structure. Use the `SimpleEntry` class in
+For simple use cases a key-value pair is a sufficient data structure. Use the `KeyValueEntry` class in
 such cases.
 
 ```kotlin
 // the Endpoints that should be available per default
 val defaultEndpoints =
     listOf(
-        SimpleEntry("Live", "some.live.endpoint.org"),
-        SimpleEntry("Dev", "some.dev.endpoint.org")
+        KeyValueEntry("Live", "some.live.endpoint.org"),
+        KeyValueEntry("Dev", "some.dev.endpoint.org")
     )
 
 // init the library
@@ -57,7 +57,7 @@ endpointPicker.setActiveEntry(defaultEndpoints[1], context)
 
 // update endpoints list
 endpointPicker.setEntries(
-    defaultEndpoints + SimpleEntry("Other", "another.url.com"),
+    defaultEndpoints + KeyValueEntry("Other", "another.url.com"),
     context
 )
 
@@ -72,7 +72,7 @@ fragmentManager
 ```
 
 In case multiple `String` values need to be saved per entry, the `MultiEntry` class is a good
-solution. Usage is similar to `SimpleEntry` above. Alternatively, a custom data class can be chosen
+solution. Usage is similar to `KeyValueEntry` above. Alternatively, a custom data class can be chosen
 as `Entry` implementation. See the `Advanced Usage` section below.
 
 ```kotlin

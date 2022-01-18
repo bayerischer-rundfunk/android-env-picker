@@ -26,7 +26,7 @@ class SampleTest {
 
     @Test
     fun `test simple sample`() {
-        envPickerSampleSimple(getMockContext(), mockFragmentManager)
+        envPickerSampleKeyValue(getMockContext(), mockFragmentManager)
     }
 
     @Test
@@ -36,7 +36,7 @@ class SampleTest {
 }
 
 @Suppress("UNUSED_VARIABLE")
-fun envPickerSampleSimple(
+fun envPickerSampleKeyValue(
     context: Context,
     fragmentManager: FragmentManager
 ) {
@@ -44,8 +44,8 @@ fun envPickerSampleSimple(
     // the Endpoints that should be available per default
     val defaultEndpoints =
         listOf(
-            SimpleEntry("Live", "some.live.endpoint.org"),
-            SimpleEntry("Dev", "some.dev.endpoint.org")
+            KeyValueEntry("Live", "some.live.endpoint.org"),
+            KeyValueEntry("Dev", "some.dev.endpoint.org")
         )
 
     // init the library
@@ -67,7 +67,7 @@ fun envPickerSampleSimple(
 
     // update endpoints list
     endpointPicker.setEntries(
-        defaultEndpoints + SimpleEntry("Other", "another.url.com"),
+        defaultEndpoints + KeyValueEntry("Other", "another.url.com"),
         context
     )
 

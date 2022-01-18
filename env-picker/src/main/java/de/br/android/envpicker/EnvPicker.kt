@@ -55,9 +55,6 @@ interface EnvPicker<T : Entry> {
  * Instantiates an [EnvPicker] that can be used to manage its data directly or create a [Fragment]
  * that lets users manage the data via UI.
  *
- * For simple key-value cases there is a simplified overload of the [envPicker] function.
- * Use this version if you want to use a custom data class as [Entry] implementation.
- *
  * @param config a valid [Config] object
  * @param context to be used to access SharedPreferences and resources
  *
@@ -111,7 +108,8 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
     }
 
 /**
- * A simple interface if only one String value needs to be stored per entry.
+ * Instantiates an [EnvPicker] that can be used to manage its data directly or create a [Fragment]
+ * that lets users manage the data via UI.
  *
  * @param key used as SharedPreferences key
  * @param fragmentTitle displayed as title of fragment
@@ -119,24 +117,11 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
  * @param defaultActiveEntry will be set as initial active entry
  * @param context to be used to access SharedPreferences and resources
  */
-fun envPicker(
+fun <T : Entry> envPicker(
     key: String,
     fragmentTitle: String,
-    defaultEntries: List<SimpleEntry>,
-    defaultActiveEntry: SimpleEntry,
+    defaultEntries: List<T>,
+    defaultActiveEntry: T,
     context: Context
-): EnvPicker<SimpleEntry> =
+): EnvPicker<T> =
     envPicker(Config(key, fragmentTitle, defaultEntries, defaultActiveEntry), context)
-
-/**
- * An implementation of [Entry] representing a single key-value pair.
- *
- * @param name The unique name of this [Entry] displayed in the UI and used as key
- * @param value The [String] value of this [Entry]
- */
-data class SimpleEntry(
-    @EntryField("Name")
-    override var name: String,
-    @EntryField("Value")
-    var value: String,
-) : Entry
