@@ -9,7 +9,6 @@ import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -52,7 +51,7 @@ internal class EntryAdapter<T : Entry>(
             val color =
                 if (entryContainer.active)
                     getThemeColor(R.attr.colorSecondary, itemView.context)
-                else ContextCompat.getColor(itemView.context, android.R.color.black)
+                else getThemeColor(R.attr.colorOnBackground, itemView.context)
 
             itemView.findViewById<TextView>(R.id.title).apply {
                 text = entryContainer.entry.name
