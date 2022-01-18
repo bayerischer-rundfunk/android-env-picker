@@ -305,5 +305,36 @@ class CustomEntryTest {
         assertEquals("23 - some string - false", picker.getActiveEntry(context).summary)
     }
 
+    private data class PrivateEntry(
+        @EntryField("Name")
+        override val name: String,
+        @EntryField("Int Field")
+        val intField: Int,
+        @EntryField("String Field")
+        val stringField: String,
+        @EntryField("Boolean Field")
+        val booleanField: Boolean
+    ) : Entry
+
+    @Test
+    fun `private constructor`() {
+        val defActiveEntry = PrivateEntry("some key", 23, "some string", false)
+        val defEntries = listOf(defActiveEntry)
+        val picker = envPicker(
+            Config(
+                getTestKey(),
+                "Some title",
+                defEntries,
+                defActiveEntry,
+            ),
+            context
+        )
+
+        assertEquals(
+            defActiveEntry,
+            picker.config.createEntry(listOf("some key", 23, "some string", false))
+        )
+    }
+
     private fun getTestKey() = "${this::class.simpleName}.${getEnclosingFunctionName()}"
 }
