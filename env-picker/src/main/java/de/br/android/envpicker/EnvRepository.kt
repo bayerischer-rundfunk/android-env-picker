@@ -31,7 +31,7 @@ internal class EnvRepository<T : Entry>(
             ?.map { it.split(ENTRY_ORDER_DELIMITER, limit = 2) }
             ?.let { pairs -> pairs.sortedBy { it[0] } }
             ?.map { it[1] }
-            ?.map(config.entryDescription.deserializeEntry)
+            ?.mapNotNull(config::deserializeEntry)
             ?: listOf()
 
     fun loadActiveEntryKey(): String? =
@@ -49,7 +49,7 @@ internal class EnvRepository<T : Entry>(
 
     fun saveEntries(state: List<T>) {
         val newSerializedState = state
-            .map(config.entryDescription.serializeEntry)
+            .map(config::serializeEntry)
             .mapIndexed { index, s -> "$index$ENTRY_ORDER_DELIMITER$s" }
             .toSet()
         prefs.edit()

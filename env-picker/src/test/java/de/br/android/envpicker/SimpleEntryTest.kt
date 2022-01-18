@@ -1,6 +1,7 @@
 package de.br.android.envpicker
 
 import android.content.Context
+import de.br.android.envpicker.mocks.getEnclosingFunctionName
 import de.br.android.envpicker.mocks.getMockContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -34,7 +35,7 @@ class SimpleEntryTest {
     @Test(expected = IllegalArgumentException::class)
     fun `invalid config - empty defaultEntries`() {
         envPicker(
-            "Test Fragment",
+            getTestKey(),
             "testPrefsKey",
             listOf(),
             defaultActiveEntry,
@@ -45,7 +46,7 @@ class SimpleEntryTest {
     @Test(expected = IllegalArgumentException::class)
     fun `invalid config - defaultActiveEntry not in defaultEntries`() {
         envPicker(
-            "Test Fragment",
+            getTestKey(),
             "testPrefsKey",
             defaultEntries,
             endpoint3,
@@ -81,6 +82,14 @@ class SimpleEntryTest {
         assertEquals(endpoint3, envPicker.getEntries(context).first())
     }
 
+    @Test
+    fun `create entry`() {
+        val envPicker = setupEnvPicker()
+        val created = envPicker.config.createEntry(listOf("entry #3", "fkjw"))
+        val expected = SimpleEntry("entry #3", "fkjw")
+        assertEquals(expected, created)
+    }
+
     @Test(expected = IllegalStateException::class)
     fun `getActiveEntry on empty data`() {
         val envPicker = setupEnvPicker()
@@ -96,4 +105,6 @@ class SimpleEntryTest {
 
         envPicker.getActiveEntry(context)
     }
+
+    private fun getTestKey() = "${this::class.simpleName}.${getEnclosingFunctionName()}"
 }

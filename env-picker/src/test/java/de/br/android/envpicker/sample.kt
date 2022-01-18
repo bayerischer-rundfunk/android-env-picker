@@ -30,11 +30,6 @@ class SampleTest {
     }
 
     @Test
-    fun `test multi sample`() {
-        envPickerSampleMulti(getMockContext())
-    }
-
-    @Test
     fun `test complex sample`() {
         envPickerSample(getMockContext())
     }
@@ -86,49 +81,28 @@ fun envPickerSampleSimple(
         .commit()
 }
 
-@Suppress("UNUSED_VARIABLE")
-fun envPickerSampleMulti(
-    context: Context
-) {
-
-    // We can use multiple String values with MultiEntry
-    val defaultEndpoints =
-        listOf(
-            MultiEntry("Live", "some.live.endpoint.org", "", ""),
-            MultiEntry("Dev", "some.dev.endpoint.org", "some-username", "secretPw")
-        )
-
-    // init the library
-    val endpointPicker = envPicker(
-        "multiEndpointsPicker",
-        "Choose Endpoint",
-        // Here, we need to define names for the fields, as there are multiple now
-        listOf("URL", "User", "Password"),
-        defaultEndpoints,
-        defaultEndpoints[0],
-        context
-    )
-
-    // accessing the current endpoint URL now works per index
-    val currentlyActiveEndpointUrl = endpointPicker.getActiveEntry(context).fields[0]
-
-}
-
-
 // a custom data class implementing the Entry interface
 data class Endpoint(
+    @EntryField("Name")
     override val name: String, // implement the name field
+    @EntryField("URL")
     val url: String,
+    @EntryField("Retry Count")
     val retryCount: Int,
+    @EntryField("Allow HTTP")
     val allowHttp: Boolean
 ) : Entry {
-    // return all the custom fields in a constant order here - excluding the name field
-    override val fields: List<Any>
-        get() = listOf(url, retryCount, allowHttp)
 
     // the summary of a given entry that is displayed in the UI
     override val summary: String
         get() = "$url, $retryCount retries" + if (allowHttp) ", allowHttp" else ""
+
+    // optional: define a custom serializer
+    class Serializer : EntrySerializer<Endpoint> {
+        override fun serializeEntry(entry: Endpoint): String = Gson().toJson(entry)
+        override fun deserializeEntry(str: String): Endpoint =
+            Gson().fromJson(str, Endpoint::class.java)
+    }
 }
 
 @Suppress("UNUSED_VARIABLE")
@@ -148,34 +122,19 @@ fun envPickerSample(
         Config(
             "endpointsPicker", // used as sharedPrefs key
             "Choose Endpoint", // displayed as fragment title
-            EntryDescription(
-                // these define each field's type and name that will be displayed in the UI
-                listOf(
-                    FieldDescription("URL", FieldType.String),
-                    FieldDescription("Retry Count", FieldType.Int),
-                    FieldDescription("Allow HTTP", FieldType.Boolean),
-                ),
-                // how to create an Endpoint from user inputs
-                { name, fields ->
-                    Endpoint(name, fields[0] as String, fields[1] as Int, fields[2] as Boolean)
-                },
-                // how to serialize it
-                // we use Gson here, but you can use any serialization method you like
-                { entry -> Gson().toJson(entry) },
-                // and how to deserialize it
-                { str -> Gson().fromJson(str, Endpoint::class.java) }
-            ),
             // which Endpoints should be available per default?
             defaultEndpoints,
             // which endpoint should be active initially?
-            defaultEndpoints[0]
+            defaultEndpoints[0],
+            // optional: define a custom serializer
+            Endpoint.Serializer(),
         ),
         context
     )
 
     // accessing the entry's fields now works with the custom field names
     val currentlyActiveEndpointUrl =
-        endpointPicker.getActiveEntry(context)?.url
+        endpointPicker.getActiveEntry(context).url
     val currentlyActiveEndpointRetryCount =
-        endpointPicker.getActiveEntry(context)?.retryCount
+        endpointPicker.getActiveEntry(context).retryCount
 }

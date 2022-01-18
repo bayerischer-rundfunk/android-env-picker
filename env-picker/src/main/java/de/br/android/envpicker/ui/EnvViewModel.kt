@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 internal class EnvViewModel<T : Entry>(
     private val repo: EnvRepository<T>,
-    val config: Config<T>
+    private val config: Config<T>
 ) : ViewModel() {
 
     private val _items = MutableLiveData<List<EntryContainer<T>>>()
@@ -43,8 +43,8 @@ internal class EnvViewModel<T : Entry>(
         update()
     }
 
-    fun updateEntry(entry: T?, newName: String, newValues: List<Any>) {
-        val newEntry = config.entryDescription.createEntryFromInputs(newName, newValues)
+    fun updateEntry(entry: T?, newValues: List<Any>) {
+        val newEntry = config.createEntry(newValues)
         val newState = loadState().toMutableList()
         entry?.let {
             newState.remove(it)
@@ -59,22 +59,25 @@ internal class EnvViewModel<T : Entry>(
 
     fun updateEntryAndRestart(
         entry: T?,
-        newName: String,
         newValues: List<Any>,
         context: Context
     ) {
-        updateEntry(entry, newName, newValues)
+        updateEntry(entry, newValues)
         restartApp(context)
-    }
-
-    private fun setActiveEntry(entry: T) {
-        repo.saveActiveEntry(entry)
-        update()
     }
 
     fun setActiveEntryAndRestart(entry: T, context: Context) {
         setActiveEntry(entry)
         restartApp(context)
+    }
+
+    internal fun getFieldDescriptionsAndValues(entry: T?) =
+        if (entry == null) config.fieldDescriptions.map { it to null }
+        else config.fieldDescriptions.zip(config.getFieldValues(entry))
+
+    private fun setActiveEntry(entry: T) {
+        repo.saveActiveEntry(entry)
+        update()
     }
 
     private fun restartApp(context: Context) = viewModelScope.launch {
