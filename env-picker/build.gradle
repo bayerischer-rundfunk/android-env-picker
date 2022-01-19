@@ -6,7 +6,7 @@ plugins {
 
 ext {
     PUBLISH_GROUP_ID = 'de.br.android'
-    PUBLISH_VERSION = '0.1.0'
+    PUBLISH_VERSION = '0.2.0'
     PUBLISH_ARTIFACT_ID = 'envpicker'
 }
 
@@ -46,7 +46,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
     implementation "androidx.fragment:fragment-ktx:1.4.0"
     implementation 'com.jakewharton:process-phoenix:2.0.0'
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.5.30"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.5.32"
 
     testImplementation 'junit:junit:4.+'
     testImplementation "io.mockk:mockk:1.10.0"

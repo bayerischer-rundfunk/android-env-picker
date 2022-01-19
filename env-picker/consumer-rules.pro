@@ -1,0 +1,1 @@
+-keepclassmembers, includedescriptorclasses class de.br.android.envpicker.KeyValueEntry { *; }

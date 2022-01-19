@@ -17,13 +17,15 @@ internal class EntryReflection<T : Entry>(instance: T) {
     internal val entryLabelsAndFields = run {
         val orderedNames = entryConstructor.parameters
             .map { it.name }
-        val orderedLabels = entryConstructor.parameters
-            .mapNotNull { it.annotations.filterIsInstance<EntryField>().firstOrNull()?.label }
-        val unorderedProperties = entryClass.memberProperties
+        val labelsMap = entryConstructor.parameters
+            .map { it.name to it.annotations.filterIsInstance<EntryField>().firstOrNull()?.label }
+            .toMap()
+        val propertiesMap = entryClass.memberProperties
             .filter { it.javaField != null }
             .map { it.name to it }
             .toMap()
-        val orderedProperties = orderedNames.map { unorderedProperties[it]!! }
+        val orderedProperties = orderedNames.map { propertiesMap[it]!! }
+        val orderedLabels = orderedNames.map { labelsMap[it]!! }
         orderedLabels.zip(orderedProperties)
     }
 
