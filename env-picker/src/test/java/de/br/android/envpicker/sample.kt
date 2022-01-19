@@ -41,50 +41,50 @@ fun envPickerSampleKeyValue(
     fragmentManager: FragmentManager
 ) {
 
-    // the Endpoints that should be available per default
+    // Define the Endpoints that should be available per default
     val defaultEndpoints =
         listOf(
             KeyValueEntry("Live", "some.live.endpoint.org"),
             KeyValueEntry("Dev", "some.dev.endpoint.org")
         )
 
-    // init the library
+    // Init the library
     val endpointPicker = envPicker(
-        "simpleEndpointsPicker", // used as sharedPrefs key
-        "Choose Endpoint", // displayed as fragment title
-        defaultEndpoints, // which Endpoints should be available per default?
-        defaultEndpoints[0], // which endpoint should be active initially?
+        "keyValueEndpointsPicker", // Used as sharedPrefs key
+        "Choose Endpoint", // Displayed as fragment title
+        defaultEndpoints, // Which Endpoints should be available per default?
+        defaultEndpoints[0], // Which endpoint should be active initially?
         context
     )
 
     // Initialization is done at this point. Now how to use the EnvPicker?
 
-    // get current endpoint URL
+    // Get current endpoint URL
     val currentlyActiveEndpointUrl = endpointPicker.getActiveEntry(context).value
 
-    // change active endpoint
+    // Change active endpoint
     endpointPicker.setActiveEntry(defaultEndpoints[1], context)
 
-    // update endpoints list
+    // Update endpoints list
     endpointPicker.setEntries(
         defaultEndpoints + KeyValueEntry("Other", "another.url.com"),
         context
     )
 
-    // show management UI
+    // Show management UI
     endpointPicker.startEnvPickerActivity(context)
 
-    // or get an equivalent fragment and handle it yourself
+    // Or get an equivalent fragment and handle it yourself
     fragmentManager
         .beginTransaction()
         .add(endpointPicker.createFragment(), "endpointPicker")
         .commit()
 }
 
-// a custom data class implementing the Entry interface
+// A custom data class implementing the Entry interface
 data class Endpoint(
-    @EntryField("Name")
-    override val name: String, // implement the name field
+    @EntryField("Name") // Each field needs this annotation to declare a label
+    override val name: String, // Override the name field
     @EntryField("URL")
     val url: String,
     @EntryField("Retry Count")
@@ -93,11 +93,11 @@ data class Endpoint(
     val allowHttp: Boolean
 ) : Entry {
 
-    // the summary of a given entry that is displayed in the UI
+    // Optional: The summary of a given entry that is displayed in the UI
     override val summary: String
         get() = "$url, $retryCount retries" + if (allowHttp) ", allowHttp" else ""
 
-    // optional: define a custom serializer
+    // Optional: Define a custom serializer, e.g. with GSON
     class Serializer : EntrySerializer<Endpoint> {
         override fun serializeEntry(entry: Endpoint): String = Gson().toJson(entry)
         override fun deserializeEntry(str: String): Endpoint =
@@ -110,29 +110,29 @@ fun envPickerSample(
     context: Context
 ) {
 
-    // use the custom data class
+    // Use the custom data class
     val defaultEndpoints =
         listOf(
             Endpoint("Live", "some.live.endpoint.org", 2, false),
             Endpoint("Dev", "some.dev.endpoint.org", 6, true)
         )
 
-    // init the library
+    // Init the library
     val endpointPicker = envPicker(
         Config(
-            "endpointsPicker", // used as sharedPrefs key
-            "Choose Endpoint", // displayed as fragment title
-            // which Endpoints should be available per default?
+            "endpointsPicker", // Used as sharedPrefs key
+            "Choose Endpoint", // Displayed as fragment title
+            // Which Endpoints should be available per default?
             defaultEndpoints,
-            // which endpoint should be active initially?
+            // Which endpoint should be active initially?
             defaultEndpoints[0],
-            // optional: define a custom serializer
+            // Optional: Define a custom serializer
             Endpoint.Serializer(),
         ),
         context
     )
 
-    // accessing the entry's fields now works with the custom field names
+    // Accessing the entry's fields now works with the custom field names
     val currentlyActiveEndpointUrl =
         endpointPicker.getActiveEntry(context).url
     val currentlyActiveEndpointRetryCount =
