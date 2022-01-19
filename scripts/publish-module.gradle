@@ -93,5 +93,5 @@ signing {
 
 def shouldSignPublication() {
     return !gradle.startParameter.taskRequests
-            .any { it.args[0].contains("PublicationToMavenLocal") }
+            .any { it.args[0].toString().contains("PublicationToMavenLocal") }
 }
