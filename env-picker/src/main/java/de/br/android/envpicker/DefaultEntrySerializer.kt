@@ -21,15 +21,15 @@ internal class DefaultEntrySerializer<T : Entry>(
     private val separator = "|"
 
     override fun serializeEntry(entry: T): String =
-        entryReflection.entryLabelsAndFields.map { (_, field) ->
+        entryReflection.fields.map { field ->
             field.getter.isAccessible = true
             field.getter.call(entry)!!
         }
             .joinToString(separator = separator) { value -> encode(serializeField(value)) }
 
     override fun deserializeEntry(str: String): T {
-        val fields = entryReflection.entryLabelsAndFields
-            .map { it.second.returnType.classifier as KClass<*> }
+        val fields = entryReflection.fields
+            .map { it.returnType.classifier as KClass<*> }
         val values = str.split(separator)
 
         if (fields.size != values.size)
@@ -40,7 +40,7 @@ internal class DefaultEntrySerializer<T : Entry>(
 
         return values.zip(fields)
             .map { (value, cls) -> deserializeField(decode(value), cls) }
-            .let { entryReflection.entryConstructor.call(*it.toTypedArray()) }
+            .let { entryReflection.createEntry(it) }
     }
 
     private fun serializeField(value: Any) = value.toString()

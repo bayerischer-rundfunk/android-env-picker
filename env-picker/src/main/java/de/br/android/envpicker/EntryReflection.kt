@@ -10,49 +10,55 @@ internal class EntryReflection<T : Entry>(instance: T) {
 
     private val entryClass = instance::class
 
-    internal val entryConstructor = entryClass.primaryConstructor
+    private val entryConstructor = entryClass.primaryConstructor
         ?.apply { isAccessible = true }
-        ?: throw IllegalArgumentException("${entryClass.qualifiedName} does not have a primary constructor.")
+        ?: throw IllegalArgumentException(
+            "${entryClass.qualifiedName} does not have a primary constructor. " +
+                    "Please check your proguard config in case obfuscation is enabled."
+        )
 
-    internal val entryLabelsAndFields = run {
-        val orderedNames = entryConstructor.parameters
-            .map { it.name }
-        val labelsMap = entryConstructor.parameters
-            .map { it.name to it.annotations.filterIsInstance<EntryField>().firstOrNull()?.label }
-            .toMap()
-        val propertiesMap = entryClass.memberProperties
+    private val orderedNames = entryConstructor.parameters.map { it.name!! }
+
+    private val orderedFields = run {
+        val fieldMap = entryClass.memberProperties
             .filter { it.javaField != null }
             .map { it.name to it }
             .toMap()
-        val orderedProperties = orderedNames.map { propertiesMap[it]!! }
-        val orderedLabels = orderedNames.map { labelsMap[it]!! }
-        orderedLabels.zip(orderedProperties)
+        orderedNames.mapNotNull { fieldMap[it] }
     }
 
-    internal val fieldDescriptions =
-        entryLabelsAndFields
-            .map { (label, field) -> label to field.returnType.classifier!! }
-            .map { (label, cls) -> FieldDescription(label, FieldType.of(cls)) }
+    private val orderedLabels = run {
+        val labelMap = entryConstructor.parameters
+            .map { it.name to it.annotations.filterIsInstance<EntryField>().firstOrNull()?.label }
+            .toMap()
+        orderedNames.mapNotNull { labelMap[it] }
+    }
 
     init {
-        if (entryLabelsAndFields.size != entryConstructor.parameters.size) {
+        if (orderedNames.size != orderedFields.size || orderedNames.size != orderedLabels.size)
             throw IllegalArgumentException(
                 "Invalid Entry implementation: " +
-                        "All constructor parameters must be annotated with @${EntryField::class.simpleName}. " +
-                        "No other fields are allowed."
+                        "All constructor parameters must be annotated with @EntryField. " +
+                        "Please check your proguard config in case obfuscation is enabled."
             )
-        }
     }
 
-    internal fun getFieldValues(entry: T, exclude: List<String> = listOf()) =
-        entryLabelsAndFields
-            .filter { (_, field) -> field.name !in exclude }
-            .map { (_, field) ->
+    val fields get() = orderedFields
+
+    val fieldDescriptions = orderedFields
+        .map { it.returnType.classifier!! }
+        .zip(orderedLabels)
+        .map { (cls, label) -> FieldDescription(label, FieldType.of(cls)) }
+
+    fun getFieldValues(entry: T, exclude: List<String> = listOf()) =
+        orderedFields
+            .filter { it.name !in exclude }
+            .map { field ->
                 field.isAccessible = true
                 field.getter.call(entry)
             }
 
-    internal fun createEntry(values: List<*>) =
+    fun createEntry(values: List<*>) =
         entryConstructor.call(*values.toTypedArray())
 }
 
