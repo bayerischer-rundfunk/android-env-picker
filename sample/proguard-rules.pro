@@ -1,1 +1,1 @@
--keepclassmembers, includedescriptorclasses class de.br.android.envpicker.sample.EnvConfig { *; }
+-keep class de.br.android.envpicker.sample.EnvConfig { *; }

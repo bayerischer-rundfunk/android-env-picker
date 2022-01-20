@@ -144,7 +144,7 @@ In case you enable obfuscation through R8 and you are using a custom data class,
 to be included in your rules:
 
 ```
--keepclassmembers, includedescriptorclasses class <yourCustomClassName> { *; }
+-keep class <customClassQualifiedName> { *; }
 ```
 
 ## Contribute
