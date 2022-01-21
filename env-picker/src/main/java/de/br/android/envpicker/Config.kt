@@ -15,8 +15,8 @@ data class Config<T : Entry>(
     val fragmentTitle: String,
     val defaultEntries: List<T> = listOf(),
     val defaultActiveEntry: T,
-    private val customSerializer: EntrySerializer<T>? = null,
-    private val clearOnChangedDataFormat: Boolean = false
+    private val customSerializer: EntrySerializer<T>?,
+    private val clearOnChangedDataFormat: Boolean,
 ) {
     companion object {
         internal fun getDefaultSummary(entry: Entry) = EntryReflection(entry)

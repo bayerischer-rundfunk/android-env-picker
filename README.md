@@ -39,11 +39,11 @@ val defaultEndpoints =
 
 // Init the library
 val endpointPicker = envPicker(
-    "keyValueEndpointsPicker", // Used as sharedPrefs key
-    "Choose Endpoint", // Displayed as fragment title
-    defaultEndpoints, // Which Endpoints should be available per default?
-    defaultEndpoints[0], // Which endpoint should be active initially?
-    context
+    key = "keyValueEndpointsPicker", // Used as sharedPrefs key
+    fragmentTitle = "Choose Endpoint", // Displayed as fragment title
+    defaultEntries = defaultEndpoints, // Which Endpoints should be available per default?
+    defaultActiveEntry = defaultEndpoints[0], // Which endpoint should be active initially?
+    context = context,
 )
 
 // Initialization is done at this point. Now how to use the EnvPicker?
@@ -110,17 +110,15 @@ val defaultEndpoints =
 
 // Init the library
 val endpointPicker = envPicker(
-    Config(
-        "endpointsPicker", // Used as sharedPrefs key
-        "Choose Endpoint", // Displayed as fragment title
-        // Which Endpoints should be available per default?
-        defaultEndpoints,
-        // Which endpoint should be active initially?
-        defaultEndpoints[0],
-        // Optional: Define a custom serializer
-        Endpoint.Serializer(),
-    ),
-    context
+    key = "endpointsPicker", // Used as sharedPrefs key
+    fragmentTitle = "Choose Endpoint", // Displayed as fragment title
+    // Which Endpoints should be available per default?
+    defaultEntries = defaultEndpoints,
+    // Which endpoint should be active initially?
+    defaultActiveEntry = defaultEndpoints[0],
+    // Optional: Define a custom serializer
+    customSerializer = Endpoint.Serializer(),
+    context = context,
 )
 
 // Accessing the entry's fields now works with the custom field names

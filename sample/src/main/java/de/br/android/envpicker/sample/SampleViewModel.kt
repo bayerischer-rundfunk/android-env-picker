@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import de.br.android.envpicker.Config
 import de.br.android.envpicker.envPicker
 
 class SampleViewModel(context: Context) : ViewModel() {
@@ -24,15 +23,13 @@ class SampleViewModel(context: Context) : ViewModel() {
 
     private val envPicker =
         envPicker(
-            Config(
-                "envPickerSample",
-                "Pick an endpoint!",
-                defaultEndpoints,
-                defaultEndpoint,
-                customSerializer = EnvConfig.Serializer(),
-                clearOnChangedDataFormat = false
-            ),
-            context
+            key = "envPickerSample",
+            fragmentTitle = "Pick an endpoint!",
+            defaultEntries = defaultEndpoints,
+            defaultActiveEntry = defaultEndpoint,
+            customSerializer = EnvConfig.Serializer(),
+            clearOnChangedDataFormat = false,
+            context = context,
         )
 
     init {

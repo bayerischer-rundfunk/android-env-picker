@@ -111,17 +111,31 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
  * Instantiates an [EnvPicker] that can be used to manage its data directly or create a [Fragment]
  * that lets users manage the data via UI.
  *
- * @param key used as SharedPreferences key
- * @param fragmentTitle displayed as title of fragment
- * @param defaultEntries will be set as initial values if no entries are present at init time
- * @param defaultActiveEntry will be set as initial active entry
- * @param context to be used to access SharedPreferences and resources
+ * @property key Used as SharedPreferences key. Needs to be unique among [EnvPicker] instances.
+ * @property fragmentTitle Displayed as title of fragment.
+ * @property defaultEntries Will be set as initial values if no entries are present at init time.
+ * @property defaultActiveEntry Will be set as initial active entry.
+ * @property customSerializer Will be used to handle serialization of the entries.
+ * @property clearOnChangedDataFormat If true, clears the persisted entries in case of a format change.
+ * @param context Will be used to access SharedPreferences and resources.
  */
 fun <T : Entry> envPicker(
     key: String,
     fragmentTitle: String,
-    defaultEntries: List<T>,
+    defaultEntries: List<T> = listOf(),
     defaultActiveEntry: T,
-    context: Context
+    context: Context,
+    customSerializer: EntrySerializer<T>? = null,
+    clearOnChangedDataFormat: Boolean = false,
 ): EnvPicker<T> =
-    envPicker(Config(key, fragmentTitle, defaultEntries, defaultActiveEntry), context)
+    envPicker(
+        Config(
+            key,
+            fragmentTitle,
+            defaultEntries,
+            defaultActiveEntry,
+            customSerializer,
+            clearOnChangedDataFormat,
+        ),
+        context,
+    )
