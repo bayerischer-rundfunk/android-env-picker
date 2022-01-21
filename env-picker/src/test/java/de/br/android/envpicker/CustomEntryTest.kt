@@ -11,24 +11,6 @@ import org.junit.Test
 
 class CustomEntryTest {
 
-    private data class CustomEntry(
-        @EntryField("Name")
-        val key: String,
-        @EntryField("Int Field")
-        val intField: Int,
-        @EntryField("String Field")
-        val stringField: String,
-        @EntryField("Boolean Field")
-        val booleanField: Boolean
-    ) : Entry {
-        override val name: String
-            get() = key
-
-        override val summary: String
-            get() = listOf(intField, stringField, booleanField)
-                .joinToString(separator = " - ") { it.toString() }
-    }
-
     private lateinit var context: Context
 
     private val defaultEndpoint1 = CustomEntry(
@@ -56,7 +38,9 @@ class CustomEntryTest {
         key = this::class.java.name,
         fragmentTitle = "Test Fragment",
         defaultEntries = defaultEntries,
-        defaultActiveEntry = defaultActiveEntry
+        defaultActiveEntry = defaultActiveEntry,
+        null,
+        false,
     )
 
     private fun setupEnvPicker() = envPicker(
@@ -123,94 +107,18 @@ class CustomEntryTest {
         val defActiveEntry = InvalidCustomEntry("some key", 23, "some string", false)
         val defEntries = listOf(defActiveEntry)
         envPicker(
-            Config(
-                getTestKey(),
-                "Some title",
-                defEntries,
-                defActiveEntry,
-                InvalidCustomEntrySerializer()
-            ),
-            context
+            key = getTestKey(),
+            "Some title",
+            defaultEntries = defEntries,
+            defaultActiveEntry = defActiveEntry,
+            customSerializer = InvalidCustomEntrySerializer(),
+            context = context,
         )
     }
 
     @Test
     fun `validate valid config`() {
         setupEnvPicker()
-    }
-
-    /* serialization and instantiation */
-
-    @Test
-    fun `default serializer`() {
-        val defActiveEntry = CustomEntry(
-            "some name",
-            23,
-            "some string",
-            false
-        )
-        val defEntries = listOf(defActiveEntry)
-        val picker = envPicker(
-            Config(
-                getTestKey(),
-                "Some title",
-                defEntries,
-                defActiveEntry,
-            ),
-            context
-        )
-
-        val defActiveEntry2 = defActiveEntry
-            .let { picker.config.serializeEntry(it) }
-            .let { picker.config.deserializeEntry(it) }
-
-        assertEquals(defActiveEntry, defActiveEntry2)
-    }
-
-    @Test
-    fun `custom serializer - GSON`() {
-
-        class CustomGsonSerializer : EntrySerializer<CustomEntry> {
-            private val gson = Gson()
-
-            override fun serializeEntry(entry: CustomEntry): String =
-                gson.toJson(entry)
-
-            override fun deserializeEntry(str: String): CustomEntry =
-                gson.fromJson(str, CustomEntry::class.java)
-        }
-
-        val defActiveEntry = CustomEntry(
-            "some name",
-            23,
-            "some string",
-            false
-        )
-        val defEntries = listOf(defActiveEntry)
-        val picker = envPicker(
-            Config(
-                getTestKey(),
-                "Some title",
-                defEntries,
-                defActiveEntry,
-                CustomGsonSerializer()
-            ),
-            context
-        )
-
-        val defActiveEntry2 = defActiveEntry
-            .let { picker.config.serializeEntry(it) }
-            .let { picker.config.deserializeEntry(it) }
-
-        assertEquals(defActiveEntry, defActiveEntry2)
-    }
-
-    @Test
-    fun `create entry`() {
-        val envPicker = setupEnvPicker()
-        val created = envPicker.config.createEntry(listOf("entry #3", 23, "fkjw", true))
-        val expected = CustomEntry("entry #3", 23, "fkjw", true)
-        assertEquals(expected, created)
     }
 
     /* basic usage */
@@ -271,12 +179,10 @@ class CustomEntryTest {
         )
         val defEntries = listOf(defActiveEntry)
         val picker = envPicker(
-            Config(
-                getTestKey(),
-                "Some title",
-                defEntries,
-                defActiveEntry,
-            ),
+            getTestKey(),
+            "Some title",
+            defEntries,
+            defActiveEntry,
             context
         )
 
@@ -293,47 +199,14 @@ class CustomEntryTest {
         )
         val defEntries = listOf(defActiveEntry)
         val picker = envPicker(
-            Config(
-                getTestKey(),
-                "Some title",
-                defEntries,
-                defActiveEntry,
-            ),
+            getTestKey(),
+            "Some title",
+            defEntries,
+            defActiveEntry,
             context
         )
 
         assertEquals("23 - some string - false", picker.getActiveEntry(context).summary)
-    }
-
-    private data class PrivateEntry(
-        @EntryField("Name")
-        override val name: String,
-        @EntryField("Int Field")
-        val intField: Int,
-        @EntryField("String Field")
-        val stringField: String,
-        @EntryField("Boolean Field")
-        val booleanField: Boolean
-    ) : Entry
-
-    @Test
-    fun `private constructor`() {
-        val defActiveEntry = PrivateEntry("some key", 23, "some string", false)
-        val defEntries = listOf(defActiveEntry)
-        val picker = envPicker(
-            Config(
-                getTestKey(),
-                "Some title",
-                defEntries,
-                defActiveEntry,
-            ),
-            context
-        )
-
-        assertEquals(
-            defActiveEntry,
-            picker.config.createEntry(listOf("some key", 23, "some string", false))
-        )
     }
 
     private fun getTestKey() = "${this::class.simpleName}.${getEnclosingFunctionName()}"

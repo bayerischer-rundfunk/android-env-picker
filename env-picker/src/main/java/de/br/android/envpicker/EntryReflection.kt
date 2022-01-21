@@ -1,5 +1,6 @@
 package de.br.android.envpicker
 
+import kotlin.reflect.KClassifier
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
@@ -7,6 +8,12 @@ import kotlin.reflect.jvm.javaField
 
 
 internal class EntryReflection<T : Entry>(instance: T) {
+
+    companion object {
+        internal fun getDefaultSummary(entry: Entry) = EntryReflection(entry)
+            .getFieldValues(entry, exclude = listOf("name"))
+            .joinToString { it?.toString() ?: "" }
+    }
 
     private val entryClass = instance::class
 
@@ -34,15 +41,6 @@ internal class EntryReflection<T : Entry>(instance: T) {
         orderedNames.mapNotNull { labelMap[it] }
     }
 
-    init {
-        if (orderedNames.size != orderedFields.size || orderedNames.size != orderedLabels.size)
-            throw IllegalArgumentException(
-                "Invalid Entry implementation: " +
-                        "All constructor parameters must be annotated with @EntryField. " +
-                        "Please check your proguard config in case obfuscation is enabled."
-            )
-    }
-
     val fields get() = orderedFields
 
     val fieldDescriptions = orderedFields
@@ -60,6 +58,42 @@ internal class EntryReflection<T : Entry>(instance: T) {
 
     fun createEntry(values: List<*>) =
         entryConstructor.call(*values.toTypedArray())
+
+    fun validate() {
+        if (orderedNames.size != orderedFields.size || orderedNames.size != orderedLabels.size)
+            throw IllegalArgumentException(
+                "Invalid Entry implementation: " +
+                        "All constructor parameters must be annotated with @EntryField. " +
+                        "Please check your proguard config in case obfuscation is enabled."
+            )
+    }
 }
 
+/**
+ * Provides meta info about an [Entry]'s field.
+ *
+ * @property label The name of this field as it will be displayed in the UI.
+ * @property type A [FieldType] defining the field's type.
+ */
+internal data class FieldDescription(
+    val label: String,
+    val type: FieldType
+)
 
+/**
+ * An [Entry] field can have any of these types.
+ */
+internal enum class FieldType {
+    String,
+    Int,
+    Boolean;
+
+    companion object {
+        fun of(cls: KClassifier) = when (cls) {
+            kotlin.String::class -> String
+            kotlin.Int::class -> Int
+            kotlin.Boolean::class -> Boolean
+            else -> throw IllegalArgumentException("Unsupported field type: $cls")
+        }
+    }
+}

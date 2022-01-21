@@ -3,22 +3,15 @@ package de.br.android.envpicker
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.isAccessible
 
-/**
- * Defines methods to serialize an implementation of Entry into a String and vice versa.
- *
- * @property serializeEntry used to serialize the [Entry] implementation
- * @property deserializeEntry used to deserialize the [Entry] implementation
- */
-interface EntrySerializer<T : Entry> {
-    fun serializeEntry(entry: T): String
-    fun deserializeEntry(str: String): T
-}
-
 internal class DefaultEntrySerializer<T : Entry>(
-    private val entryReflection: EntryReflection<T>
+    instance: T
 ) : EntrySerializer<T> {
 
-    private val separator = "$"
+    companion object {
+        private const val separator = "$"
+    }
+
+    private val entryReflection = EntryReflection(instance)
 
     override fun serializeEntry(entry: T): String =
         entryReflection.fields.map { field ->
