@@ -18,7 +18,7 @@ internal class DefaultEntrySerializer<T : Entry>(
     private val entryReflection: EntryReflection<T>
 ) : EntrySerializer<T> {
 
-    private val separator = "|"
+    private val separator = "$"
 
     override fun serializeEntry(entry: T): String =
         entryReflection.fields.map { field ->
