@@ -29,13 +29,13 @@ internal class EnvRepository<T : Entry>(
     private val defaultEntrySerializer by lazy { DefaultEntrySerializer(config.defaultActiveEntry) }
 
     private fun serializeEntry(value: T): String = try {
-        (config.customSerializer ?: defaultEntrySerializer).serializeEntry(value)
+        (config.customSerializer ?: defaultEntrySerializer).serialize(value)
     } catch (e: Exception) {
         throw IllegalStateException("Error serializing entry: $value", e)
     }
 
     private fun deserializeEntry(value: String): T? = try {
-        (config.customSerializer ?: defaultEntrySerializer).deserializeEntry(value)
+        (config.customSerializer ?: defaultEntrySerializer).deserialize(value)
     } catch (e: Exception) {
         if (config.clearOnChangedDataFormat) null
         else throw IllegalStateException(

@@ -48,10 +48,10 @@ interface EnvPicker<T : Entry> {
 }
 
 /**
- * Creates an instance of [EnvPicker].
+ * Creates an instance of [EnvPicker] with the provided configuration.
  *
- * @param config a valid [Config] object
- * @param context to be used to access SharedPreferences and resources
+ * @param config A valid [Config] object.
+ * @param context To be used to access SharedPreferences and resources.
  *
  * @sample de.br.android.envpicker.Endpoint
  * @sample de.br.android.envpicker.envPickerSample
@@ -92,7 +92,7 @@ fun <T : Entry> envPicker(
     )
 
 /**
- * Holds the complete configuration of an EnvPicker instance.
+ * Immutable configuration object holding the complete configuration of an [EnvPicker] instance.
  *
  * @property key Used as SharedPreferences key. Needs to be unique among [EnvPicker] instances.
  * @property fragmentTitle Displayed as title of fragment.
@@ -111,15 +111,17 @@ data class Config<T : Entry>(
 )
 
 /**
- * Needs to be applied to all parameters of an [Entry]'s primary constructor.
- * @param label will appear in the UI as label for the corresponding field.
+ * An annotation that marks a property as relevant to the EnvPicker library.
+ * All parameters of an [Entry]'s primary constructor need to be marked with this annotation.
+ *
+ * @param label Will appear in the UI as label for the corresponding field.
  */
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class EntryField(val label: String)
 
 /**
- * An entry to be managed and persisted by the EnvPicker library.
+ * An entry holding some arbitrary data that will be managed and persisted by an [EnvPicker].
  */
 interface Entry {
     /**
@@ -134,7 +136,7 @@ interface Entry {
 }
 
 /**
- * An implementation of [Entry] representing a single key-value pair.
+ * An implementation of [Entry] holding a key-value pair.
  *
  * @param name The unique name of this [Entry] displayed in the UI and used as key
  * @param value The [String] value of this [Entry]
@@ -149,10 +151,10 @@ data class KeyValueEntry(
 /**
  * Defines methods to serialize an implementation of Entry into a String and vice versa.
  *
- * @property serializeEntry used to serialize the [Entry] implementation
- * @property deserializeEntry used to deserialize the [Entry] implementation
+ * @property serialize A lambda serializing the corresponding [Entry] implementation into a [String].
+ * @property deserialize A lambda deserializing a [String] to the corresponding [Entry] implementation.
  */
 interface EntrySerializer<T : Entry> {
-    fun serializeEntry(entry: T): String
-    fun deserializeEntry(str: String): T
+    fun serialize(entry: T): String
+    fun deserialize(str: String): T
 }

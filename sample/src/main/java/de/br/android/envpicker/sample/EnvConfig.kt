@@ -19,10 +19,10 @@ data class EnvConfig(
         get() = "$url, $retryCount retries" + if (allowHttp) ", allowHttp" else ""
 
     class Serializer : EntrySerializer<EnvConfig> {
-        override fun serializeEntry(entry: EnvConfig): String =
+        override fun serialize(entry: EnvConfig): String =
             Gson().toJson(entry)
 
-        override fun deserializeEntry(str: String): EnvConfig =
+        override fun deserialize(str: String): EnvConfig =
             Gson().fromJson(str, EnvConfig::class.java)
     }
 }

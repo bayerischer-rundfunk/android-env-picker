@@ -3,10 +3,12 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.br.android/envpicker/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/de.br.android/envpicker)
 ![example workflow](https://github.com/bayerischer-rundfunk/android-env-picker/actions/workflows/main.yml/badge.svg)
 
-An Android Library for in-app switching between environment variables.
+The Android library for in-app management of environment variables.
 
-Central use case is picking a desired endpoint for backend communication, but more complex data
-structures can be handled as well. The app will restart after making a change.
+An easy way to let testers switch among predefined environments or create their own. Manage string
+values like endpoints or more complex data structures that define the entire environment (dev / test
+/ live). The convenient UI makes it easy to create, edit and switch among setups. A restart is
+triggered after making a change to ensure the app initilaizes in the new environment.
 
 ![](static/envpicker-overview.jpg)
 ![](static/envpicker-dialog.jpg)
@@ -21,13 +23,14 @@ repositories {
 }
 
 dependencies {
-    implementation 'de.br.android:envpicker:0.1.0'
+    implementation 'de.br.android:envpicker:0.2.0'
 }
 ```
 
 ## Usage
 
-In simple cases the `KeyValueEntry` class can be used to save key-value pairs.
+In simple cases the `KeyValueEntry` class can be used to save key-value pairs. Perfect for choosing
+an appropriate endpoint.
 
 ```kotlin
 // Define the Endpoints that should be available per default
@@ -95,7 +98,9 @@ data class Endpoint(
 
     // Optional: Define a custom serializer, e.g. using GSON
     class Serializer : EntrySerializer<Endpoint> {
-        override fun serializeEntry(entry: Endpoint): String = Gson().toJson(entry)
+        override fun serializeEntry(entry: Endpoint): String =
+            Gson().toJson(entry)
+
         override fun deserializeEntry(str: String): Endpoint =
             Gson().fromJson(str, Endpoint::class.java)
     }
@@ -116,12 +121,12 @@ val endpointPicker = envPicker(
     defaultEntries = defaultEndpoints,
     // Which endpoint should be active initially?
     defaultActiveEntry = defaultEndpoints[0],
-    // Optional: Define a custom serializer
+    // Optional: Use your custom serializer
     customSerializer = Endpoint.Serializer(),
     context = context,
 )
 
-// Accessing the entry's fields now works with the custom field names
+// Accessing the current entry now returns an instance of your custom data class
 val currentlyActiveEndpointUrl =
     endpointPicker.getActiveEntry(context).url
 val currentlyActiveEndpointRetryCount =

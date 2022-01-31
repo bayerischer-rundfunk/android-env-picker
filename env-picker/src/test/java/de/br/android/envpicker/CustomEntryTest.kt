@@ -97,10 +97,10 @@ class CustomEntryTest {
         }
 
         class InvalidCustomEntrySerializer : EntrySerializer<InvalidCustomEntry> {
-            override fun serializeEntry(entry: InvalidCustomEntry): String =
+            override fun serialize(entry: InvalidCustomEntry): String =
                 Gson().toJson(entry)
 
-            override fun deserializeEntry(str: String): InvalidCustomEntry =
+            override fun deserialize(str: String): InvalidCustomEntry =
                 Gson().fromJson(str, InvalidCustomEntry::class.java)
         }
 

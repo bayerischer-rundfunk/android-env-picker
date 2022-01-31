@@ -17,8 +17,8 @@ class SerializerTest {
         val defaultSerializer = DefaultEntrySerializer(entry)
 
         val entryCopy = entry
-            .let { defaultSerializer.serializeEntry(it) }
-            .let { defaultSerializer.deserializeEntry(it) }
+            .let { defaultSerializer.serialize(it) }
+            .let { defaultSerializer.deserialize(it) }
 
         assertEquals(entry, entryCopy)
     }
@@ -29,10 +29,10 @@ class SerializerTest {
         class CustomGsonSerializer : EntrySerializer<CustomEntry> {
             private val gson = Gson()
 
-            override fun serializeEntry(entry: CustomEntry): String =
+            override fun serialize(entry: CustomEntry): String =
                 gson.toJson(entry)
 
-            override fun deserializeEntry(str: String): CustomEntry =
+            override fun deserialize(str: String): CustomEntry =
                 gson.fromJson(str, CustomEntry::class.java)
         }
 
@@ -46,8 +46,8 @@ class SerializerTest {
         )
 
         val entryCopy = entry
-            .let { serializer.serializeEntry(it) }
-            .let { serializer.deserializeEntry(it) }
+            .let { serializer.serialize(it) }
+            .let { serializer.deserialize(it) }
 
         assertEquals(entry, entryCopy)
     }

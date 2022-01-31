@@ -99,8 +99,10 @@ data class Endpoint(
 
     // Optional: Define a custom serializer, e.g. with GSON
     class Serializer : EntrySerializer<Endpoint> {
-        override fun serializeEntry(entry: Endpoint): String = Gson().toJson(entry)
-        override fun deserializeEntry(str: String): Endpoint =
+        override fun serialize(entry: Endpoint): String =
+            Gson().toJson(entry)
+
+        override fun deserialize(str: String): Endpoint =
             Gson().fromJson(str, Endpoint::class.java)
     }
 }
@@ -125,12 +127,12 @@ fun envPickerSample(
         defaultEntries = defaultEndpoints,
         // Which endpoint should be active initially?
         defaultActiveEntry = defaultEndpoints[0],
-        // Optional: Define a custom serializer
+        // Optional: Use your custom serializer
         customSerializer = Endpoint.Serializer(),
         context = context,
     )
 
-    // Accessing the entry's fields now works with the custom field names
+// Accessing the current entry now returns an instance of your custom data class
     val currentlyActiveEndpointUrl =
         endpointPicker.getActiveEntry(context).url
     val currentlyActiveEndpointRetryCount =

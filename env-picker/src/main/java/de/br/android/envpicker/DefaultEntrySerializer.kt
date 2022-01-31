@@ -13,14 +13,14 @@ internal class DefaultEntrySerializer<T : Entry>(
 
     private val entryReflection = EntryReflection(instance)
 
-    override fun serializeEntry(entry: T): String =
+    override fun serialize(entry: T): String =
         entryReflection.fields.map { field ->
             field.getter.isAccessible = true
             field.getter.call(entry)!!
         }
             .joinToString(separator = separator) { value -> encode(serializeField(value)) }
 
-    override fun deserializeEntry(str: String): T {
+    override fun deserialize(str: String): T {
         val fields = entryReflection.fields
             .map { it.returnType.classifier as KClass<*> }
         val values = str.split(separator)
