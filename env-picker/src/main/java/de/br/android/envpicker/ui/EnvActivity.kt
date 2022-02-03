@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import de.br.android.envpicker.ConfigStore
 import de.br.android.envpicker.Entry
+import de.br.android.envpicker.EnvPicker
 import de.br.android.envpicker.R
 
+/**
+ * This activity provides a UI that lets you manage the environment of the associated [EnvPicker].
+ */
 class EnvActivity<T : Entry> : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
