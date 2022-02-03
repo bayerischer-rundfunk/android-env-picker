@@ -36,7 +36,7 @@ class CustomEntryTest {
 
     private val validConfig = Config(
         key = this::class.java.name,
-        fragmentTitle = "Test Fragment",
+        uiTitle = "Test Fragment",
         defaultEntries = defaultEntries,
         defaultActiveEntry = defaultActiveEntry,
         null,

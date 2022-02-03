@@ -63,7 +63,7 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
  * Creates an instance of [EnvPicker].
  *
  * @property key Used as SharedPreferences key. Needs to be unique among [EnvPicker] instances.
- * @property fragmentTitle Displayed as title of fragment.
+ * @property uiTitle Displayed as title of fragment.
  * @property defaultEntries Will be set as initial values if no entries are present at init time.
  * @property defaultActiveEntry Will be set as initial active entry.
  * @property customSerializer Will be used to handle serialization of the entries.
@@ -72,7 +72,7 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
  */
 fun <T : Entry> envPicker(
     key: String,
-    fragmentTitle: String,
+    uiTitle: String,
     defaultEntries: List<T> = listOf(),
     defaultActiveEntry: T,
     context: Context,
@@ -82,7 +82,7 @@ fun <T : Entry> envPicker(
     envPicker(
         Config(
             key,
-            fragmentTitle,
+            uiTitle,
             defaultEntries,
             defaultActiveEntry,
             customSerializer,
@@ -95,7 +95,7 @@ fun <T : Entry> envPicker(
  * Immutable configuration object holding the complete configuration of an [EnvPicker] instance.
  *
  * @property key Used as SharedPreferences key. Needs to be unique among [EnvPicker] instances.
- * @property fragmentTitle Displayed as title of fragment.
+ * @property uiTitle Displayed as title of picker UI.
  * @property defaultEntries Will be set as initial values if no entries are present at init time.
  * @property defaultActiveEntry Will be set as initial active entry.
  * @property customSerializer Will be used to handle serialization of the entries.
@@ -103,7 +103,7 @@ fun <T : Entry> envPicker(
  */
 data class Config<T : Entry>(
     val key: String,
-    val fragmentTitle: String,
+    val uiTitle: String,
     val defaultEntries: List<T> = listOf(),
     val defaultActiveEntry: T,
     val customSerializer: EntrySerializer<T>?,

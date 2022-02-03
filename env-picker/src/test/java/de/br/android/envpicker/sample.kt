@@ -51,7 +51,7 @@ fun envPickerSampleKeyValue(
     // Init the library
     val endpointPicker = envPicker(
         key = "keyValueEndpointsPicker", // Used as sharedPrefs key
-        fragmentTitle = "Choose Endpoint", // Displayed as fragment title
+        uiTitle = "Choose Endpoint", // Displayed as title of picker UI
         defaultEntries = defaultEndpoints, // Which Endpoints should be available per default?
         defaultActiveEntry = defaultEndpoints[0], // Which endpoint should be active initially?
         context = context,
@@ -122,7 +122,7 @@ fun envPickerSample(
     // Init the library
     val endpointPicker = envPicker(
         key = "endpointsPicker", // Used as sharedPrefs key
-        fragmentTitle = "Choose Endpoint", // Displayed as fragment title
+        uiTitle = "Choose Endpoint", // Displayed as title of picker UI
         // Which Endpoints should be available per default?
         defaultEntries = defaultEndpoints,
         // Which endpoint should be active initially?

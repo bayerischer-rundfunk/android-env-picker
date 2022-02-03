@@ -17,7 +17,7 @@ internal class EnvViewModel<T : Entry>(
     private val _items = MutableLiveData<List<EntryContainer<T>>>()
     val items: LiveData<List<EntryContainer<T>>> = _items
 
-    val fragmentTitle get() = config.fragmentTitle
+    val fragmentTitle get() = config.uiTitle
 
     init {
         update()

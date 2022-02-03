@@ -5,10 +5,10 @@
 
 The Android library for in-app management of environment variables.
 
-An easy way to let testers switch among predefined environments or create their own. Manage string
+An easy way to switch among predefined environments or create your own on the fly. Manage string
 values like endpoints or more complex data structures that define the entire environment (dev / test
 / live). The convenient UI makes it easy to create, edit and switch among setups. A restart is
-triggered after making a change to ensure the app initilaizes in the new environment.
+triggered after making a change to ensure the app initializes in the new environment.
 
 ![](static/envpicker-overview.jpg)
 ![](static/envpicker-dialog.jpg)
@@ -27,6 +27,19 @@ dependencies {
 }
 ```
 
+To use the picker activity, you need to declare it in your manifest within the application tag:
+
+```xml
+
+<activity android:name="de.br.android.envpicker.ui.EnvActivity"
+    android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+```
+
+Of course you can customize the activity theme. However, it needs to be a NoActionBar-based theme.
+
+> Make sure to use either Android Studio Bumblebee (which comes with R8 version 3.1.x) or Kotlin
+> version 1.5.x. Otherwise a reflection related exception will pop up.
+
 ## Usage
 
 In simple cases the `KeyValueEntry` class can be used to save key-value pairs. Perfect for choosing
@@ -43,7 +56,7 @@ val defaultEndpoints =
 // Init the library
 val endpointPicker = envPicker(
     key = "keyValueEndpointsPicker", // Used as sharedPrefs key
-    fragmentTitle = "Choose Endpoint", // Displayed as fragment title
+    fragmentTitle = "Choose Endpoint", // Displayed as title of picker UI
     defaultEntries = defaultEndpoints, // Which Endpoints should be available per default?
     defaultActiveEntry = defaultEndpoints[0], // Which endpoint should be active initially?
     context = context,
@@ -77,7 +90,7 @@ fragmentManager
 
 In order to support fields of types other than `String` or if more values are associated with an
 entry, we need to use a custom data class which implements the `Entry` interface. The UI will
-display appropriate input methods for each field. See the supported `FieldType`s below.
+display appropriate input methods for each field. See the supported field types below.
 
 ```kotlin
 // A custom data class implementing the Entry interface
@@ -116,7 +129,7 @@ val defaultEndpoints =
 // Init the library
 val endpointPicker = envPicker(
     key = "endpointsPicker", // Used as sharedPrefs key
-    fragmentTitle = "Choose Endpoint", // Displayed as fragment title
+    fragmentTitle = "Choose Endpoint", // Displayed as title of picker UI
     // Which Endpoints should be available per default?
     defaultEntries = defaultEndpoints,
     // Which endpoint should be active initially?
@@ -133,7 +146,11 @@ val currentlyActiveEndpointRetryCount =
     endpointPicker.getActiveEntry(context).retryCount
 ```
 
-### Supported FieldTypes
+### Multiple instances
+
+You can easily define multiple instances of `EnvPicker`, each managing another aspect of your environment. Just make sure to provide unique `key`s in each call to `envPicker`!
+
+### Supported field types
 
 The currently supported types for custom data class fields are:
 

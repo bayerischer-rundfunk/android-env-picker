@@ -24,7 +24,7 @@ class SampleViewModel(context: Context) : ViewModel() {
     private val envPicker =
         envPicker(
             key = "envPickerSample",
-            fragmentTitle = "Pick an endpoint!",
+            uiTitle = "Pick an endpoint!",
             defaultEntries = defaultEndpoints,
             defaultActiveEntry = defaultEndpoint,
             customSerializer = EnvConfig.Serializer(),
