@@ -2,6 +2,7 @@ package de.br.android.envpicker
 
 import android.content.Context
 import com.google.gson.Gson
+import de.br.android.envpicker.mocks.getEnclosingFunctionName
 import de.br.android.envpicker.mocks.getMockContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -10,30 +11,6 @@ import org.junit.Test
 
 class CustomEntryTest {
 
-    private data class CustomEntry(
-        val key: String,
-        val intField: Int,
-        val stringField: String,
-        val booleanField: Boolean,
-        val charField: Char
-    ) : Entry {
-        override val name: String
-            get() = key
-
-        override val fields: List<Any>
-            get() = listOf(
-                intField,
-                stringField,
-                booleanField,
-                charField.toString()
-            )
-
-        override val summary: String
-            get() = fields
-                .slice(1 until fields.size)
-                .joinToString(separator = ", ") { it.toString() }
-    }
-
     private lateinit var context: Context
 
     private val defaultEndpoint1 = CustomEntry(
@@ -41,49 +18,29 @@ class CustomEntryTest {
         -45,
         "some value",
         false,
-        'd'
     )
     private val defaultEndpoint2 = CustomEntry(
         "entry #2",
         4,
         "some other value",
         false,
-        't'
     )
     private val endpoint3 = CustomEntry(
         "entry #3",
         9300,
         "some completely different value",
         true,
-        'z'
     )
     private val defaultEntries = listOf(defaultEndpoint1, defaultEndpoint2)
     private val defaultActiveEntry = defaultEntries[1]
 
     private val validConfig = Config(
-        this::class.java.name,
-        "Test Fragment",
-        EntryDescription(
-            listOf(
-                FieldDescription("IntField", FieldType.Int),
-                FieldDescription("StringField", FieldType.String),
-                FieldDescription("BooleanField", FieldType.Boolean),
-                FieldDescription("CharField", FieldType.String),
-            ),
-            { name, fields ->
-                CustomEntry(
-                    name,
-                    fields[0] as Int,
-                    fields[1] as String,
-                    fields[2] as Boolean,
-                    (fields[3] as String).single()
-                )
-            },
-            { entry -> Gson().toJson(entry) },
-            { str -> Gson().fromJson(str, CustomEntry::class.java) }
-        ),
-        defaultEntries,
-        defaultActiveEntry
+        key = this::class.java.name,
+        uiTitle = "Test Fragment",
+        defaultEntries = defaultEntries,
+        defaultActiveEntry = defaultActiveEntry,
+        null,
+        false,
     )
 
     private fun setupEnvPicker() = envPicker(
@@ -95,6 +52,8 @@ class CustomEntryTest {
     fun setup() {
         context = getMockContext()
     }
+
+    /* config validation */
 
     @Test(expected = IllegalArgumentException::class)
     fun `invalid config - empty defaultEntries`() {
@@ -121,12 +80,39 @@ class CustomEntryTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun `invalid config - FieldType does not match field implementation`() {
-        val fieldDescriptions = validConfig.entryDescription.fieldDescriptions.toMutableList()
-        fieldDescriptions[0] = fieldDescriptions[0].copy(type = FieldType.Boolean)
+    fun `invalid config - missing constructor parameter annotations`() {
+        data class InvalidCustomEntry(
+            val key: String,
+            val intField: Int,
+            @EntryField("String Field")
+            val stringField: String,
+            val booleanField: Boolean
+        ) : Entry {
+            override val name: String
+                get() = key
+
+            override val summary: String
+                get() = listOf(intField, stringField, booleanField)
+                    .joinToString(separator = ", ") { it.toString() }
+        }
+
+        class InvalidCustomEntrySerializer : EntrySerializer<InvalidCustomEntry> {
+            override fun serialize(entry: InvalidCustomEntry): String =
+                Gson().toJson(entry)
+
+            override fun deserialize(str: String): InvalidCustomEntry =
+                Gson().fromJson(str, InvalidCustomEntry::class.java)
+        }
+
+        val defActiveEntry = InvalidCustomEntry("some key", 23, "some string", false)
+        val defEntries = listOf(defActiveEntry)
         envPicker(
-            validConfig.copy(entryDescription = validConfig.entryDescription.copy(fieldDescriptions = fieldDescriptions)),
-            context
+            key = getTestKey(),
+            "Some title",
+            defaultEntries = defEntries,
+            defaultActiveEntry = defActiveEntry,
+            customSerializer = InvalidCustomEntrySerializer(),
+            context = context,
         )
     }
 
@@ -134,6 +120,8 @@ class CustomEntryTest {
     fun `validate valid config`() {
         setupEnvPicker()
     }
+
+    /* basic usage */
 
     @Test
     fun `basic usage`() {
@@ -164,9 +152,62 @@ class CustomEntryTest {
     fun `getActiveEntry on misconfigured data`() {
         val envPicker = setupEnvPicker()
         envPicker.setActiveEntry(
-            CustomEntry("not in the db", 2, "someValue", true, 'r'),
+            CustomEntry("not in the db", 2, "someValue", true),
             context
         )
         envPicker.getActiveEntry(context)
     }
+
+    @Test
+    fun `default summary`() {
+        data class DefaultSummaryEntry(
+            @EntryField("Name")
+            override val name: String,
+            @EntryField("Int Field")
+            val intField: Int,
+            @EntryField("String Field")
+            val stringField: String,
+            @EntryField("Boolean Field")
+            val booleanField: Boolean
+        ) : Entry
+
+        val defActiveEntry = DefaultSummaryEntry(
+            "some name",
+            23,
+            "some string",
+            false
+        )
+        val defEntries = listOf(defActiveEntry)
+        val picker = envPicker(
+            getTestKey(),
+            "Some title",
+            defEntries,
+            defActiveEntry,
+            context
+        )
+
+        assertEquals("23, some string, false", picker.getActiveEntry(context).summary)
+    }
+
+    @Test
+    fun `custom summary`() {
+        val defActiveEntry = CustomEntry(
+            "custom summary",
+            23,
+            "some string",
+            false
+        )
+        val defEntries = listOf(defActiveEntry)
+        val picker = envPicker(
+            getTestKey(),
+            "Some title",
+            defEntries,
+            defActiveEntry,
+            context
+        )
+
+        assertEquals("23 - some string - false", picker.getActiveEntry(context).summary)
+    }
+
+    private fun getTestKey() = "${this::class.simpleName}.${getEnclosingFunctionName()}"
 }

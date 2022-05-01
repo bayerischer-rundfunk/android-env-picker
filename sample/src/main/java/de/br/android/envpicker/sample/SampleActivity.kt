@@ -6,7 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 
 class SampleActivity : AppCompatActivity() {
-    private val viewModel: MainViewModel by viewModels { MainViewModel.Factory(this) }
+    private val viewModel: SampleViewModel by viewModels { SampleViewModel.Factory(this) }
 
     private val tvCurrentEndpoint by lazy { findViewById<TextView>(R.id.tv_current_endpoint) }
     private val buttonChangeEndpoint by lazy { findViewById<TextView>(R.id.button_change_endpoint) }

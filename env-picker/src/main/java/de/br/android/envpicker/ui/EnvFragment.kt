@@ -47,7 +47,7 @@ internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<TextView>(R.id.toolbar_title).text = viewModel.fragmentTitle
+        view.findViewById<TextView>(R.id.toolbar_title).text = viewModel.uiTitle
 
         val adapter = EntryAdapter(onEntryClicked, onEditEntryClicked)
         recycler?.adapter = adapter
@@ -75,21 +75,16 @@ internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
         val dialogView =
             LayoutInflater.from(requireContext()).inflate(R.layout.edit_entry_dialog, null)
         val valuesContainer = dialogView.findViewById<ViewGroup>(R.id.ll_values)
-        val nameInput = StringInput(context)
-            .apply { init("Name", entryContainer?.entry?.name ?: "") }
-        valuesContainer.addView(nameInput)
-        val inputs: List<BaseInput<*>> = viewModel.config.entryDescription.fieldDescriptions
-            .mapIndexed { i, fieldDesc ->
-                val defaultValue = entryContainer?.entry?.fields?.getOrNull(i)
-                createInput(defaultValue, fieldDesc, context)
-            }
-            .onEach { valuesContainer.addView(it) }
+        val inputs: List<BaseInput<*>> =
+            viewModel.getFieldDescriptionsAndValues(entryContainer?.entry)
+                .map { (desc, value) -> createInput(value, desc, context) }
+                .onEach { valuesContainer.addView(it) }
 
         val dialogBuilder = AlertDialog.Builder(requireContext())
             .setCancelable(true)
             .setNegativeButton(getString(R.string.ep_dialog_cancel)) { _, _ -> }
             .setPositiveButton(getString(R.string.ep_dialog_ok)) { _, _ ->
-                onUpdateEntry(entryContainer, nameInput.value, inputs.map { it.value })
+                onUpdateEntry(entryContainer, inputs.map { it.value })
             }
             .setView(dialogView)
 
@@ -110,32 +105,29 @@ internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
         when (fieldDesc.type) {
             FieldType.String ->
                 (defaultValue?.let { defaultValue as String } ?: "")
-                    .let { StringInput(context).apply { init(fieldDesc.name, it) } }
+                    .let { StringInput(context).apply { init(fieldDesc.label, it) } }
             FieldType.Int ->
                 (defaultValue?.toString()?.toInt() ?: 0)
-                    .let { IntInput(context).apply { init(fieldDesc.name, it) } }
+                    .let { IntInput(context).apply { init(fieldDesc.label, it) } }
             FieldType.Boolean ->
                 (defaultValue?.let { it as Boolean } ?: false)
-                    .let { BooleanInput(context).apply { init(fieldDesc.name, it) } }
+                    .let { BooleanInput(context).apply { init(fieldDesc.label, it) } }
         }
 
     private fun onUpdateEntry(
         entryContainer: EntryContainer<T>?,
-        nameValue: String,
         inputsValues: List<Any>
     ) {
         if (entryContainer?.active == true)
             showConfirmRestartDialog { _, _ ->
                 viewModel.updateEntryAndRestart(
                     entryContainer.entry,
-                    nameValue,
                     inputsValues,
                     requireContext()
                 )
             }
         else viewModel.updateEntry(
             entryContainer?.entry,
-            nameValue,
             inputsValues
         )
     }

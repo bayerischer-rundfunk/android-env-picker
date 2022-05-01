@@ -23,3 +23,9 @@ val mockFragmentManager = mockk<FragmentManager>()
                 every { it.commit() } returns 0
             }
     }
+
+/**
+ * Returns the name of the function that encloses the function calling [getEnclosingFunctionName].
+ */
+fun getEnclosingFunctionName(): String =
+    Thread.currentThread().stackTrace[3].methodName

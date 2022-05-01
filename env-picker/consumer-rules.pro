@@ -1,0 +1,1 @@
+-keep class de.br.android.envpicker.KeyValueEntry { *; }

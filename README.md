@@ -3,10 +3,12 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.br.android/envpicker/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/de.br.android/envpicker)
 ![example workflow](https://github.com/bayerischer-rundfunk/android-env-picker/actions/workflows/main.yml/badge.svg)
 
-An Android Library for in-app switching between environment variables.
+The Android library for in-app management of environment variables.
 
-Central use case is picking a desired endpoint for backend communication, but more complex data
-structures can be handled as well. The app will restart after making a change.
+An easy way to switch among predefined environments or create your own on the fly. Manage string
+values like endpoints or more complex data structures that define the entire environment (dev / test
+/ live). The convenient UI makes it easy to create, edit and switch among setups. A restart is
+triggered after making a change to ensure the app initializes in the new environment.
 
 ![](static/envpicker-overview.jpg)
 ![](static/envpicker-dialog.jpg)
@@ -21,152 +23,134 @@ repositories {
 }
 
 dependencies {
-    implementation 'de.br.android:envpicker:0.1.0'
+    implementation 'de.br.android:envpicker:0.2.0'
 }
 ```
 
+To use the picker activity, you need to declare it in your manifest within the application tag:
+
+```xml
+
+<activity android:name="de.br.android.envpicker.ui.EnvActivity"
+    android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+```
+
+Of course you can customize the activity theme. However, it needs to be a NoActionBar-based theme.
+
+> Make sure to use either Android Studio Bumblebee (which comes with R8 version 3.1.x) or Kotlin
+> version 1.5.x. Otherwise a reflection related exception will pop up.
+
 ## Usage
 
-For simple use cases a key-value pair is a sufficient data structure. Use the `SimpleEntry` class in
-such cases.
+In simple cases the `KeyValueEntry` class can be used to save key-value pairs. Perfect for choosing
+an appropriate endpoint.
 
 ```kotlin
-// the Endpoints that should be available per default
+// Define the Endpoints that should be available per default
 val defaultEndpoints =
     listOf(
-        SimpleEntry("Live", "some.live.endpoint.org"),
-        SimpleEntry("Dev", "some.dev.endpoint.org")
+        KeyValueEntry("Live", "some.live.endpoint.org"),
+        KeyValueEntry("Dev", "some.dev.endpoint.org")
     )
 
-// init the library
+// Init the library
 val endpointPicker = envPicker(
-    "simpleEndpointsPicker", // used as sharedPrefs key
-    "Choose Endpoint", // displayed as fragment title
-    defaultEndpoints, // which Endpoints should be available per default?
-    defaultEndpoints[0], // which endpoint should be active initially?
-    context
+    key = "keyValueEndpointsPicker", // Used as sharedPrefs key
+    uiTitle = "Choose Endpoint", // Displayed as title of picker UI
+    defaultEntries = defaultEndpoints, // Which Endpoints should be available per default?
+    defaultActiveEntry = defaultEndpoints[0], // Which endpoint should be active initially?
+    context = context,
 )
 
 // Initialization is done at this point. Now how to use the EnvPicker?
 
-// get current endpoint URL
+// Get current endpoint URL
 val currentlyActiveEndpointUrl = endpointPicker.getActiveEntry(context).value
 
-// change active endpoint
+// Change active endpoint
 endpointPicker.setActiveEntry(defaultEndpoints[1], context)
 
-// update endpoints list
+// Update endpoints list
 endpointPicker.setEntries(
-    defaultEndpoints + SimpleEntry("Other", "another.url.com"),
+    defaultEndpoints + KeyValueEntry("Other", "another.url.com"),
     context
 )
 
-// show management UI
+// Show management UI
 endpointPicker.startEnvPickerActivity(context)
 
-// or get an equivalent fragment and handle it yourself
+// Or get an equivalent fragment and handle it yourself
 fragmentManager
     .beginTransaction()
     .add(endpointPicker.createFragment(), "endpointPicker")
     .commit()
 ```
 
-In case multiple `String` values need to be saved per entry, the `MultiEntry` class is a good
-solution. Usage is similar to `SimpleEntry` above. Alternatively, a custom data class can be chosen
-as `Entry` implementation. See the `Advanced Usage` section below.
-
-```kotlin
-// We can use multiple String values with MultiEntry
-val defaultEndpoints =
-    listOf(
-        MultiEntry("Live", "some.live.endpoint.org", "", ""),
-        MultiEntry("Dev", "some.dev.endpoint.org", "some-username", "secretPw")
-    )
-
-// init the library
-val endpointPicker = envPicker(
-    "multiEndpointsPicker",
-    "Choose Endpoint",
-    // Here, we need to define names for the fields, as there are multiple now
-    listOf("URL", "User", "Password"),
-    defaultEndpoints,
-    defaultEndpoints[0],
-    context
-)
-
-// accessing the current endpoint URL now works per index
-val currentlyActiveEndpointUrl = endpointPicker.getActiveEntry(context).fields[0]
-
-```
-
 ## Advanced Usage
 
-In order to support fields of types other than `String` we need to use a custom data class which
-implements the `Entry` interface. The UI will display appropriate input methods for each field. See
-the supported `FieldType`s below.
+In order to support fields of types other than `String` or if more values are associated with an
+entry, we need to use a custom data class which implements the `Entry` interface. The UI will
+display appropriate input methods for each field. See the supported field types below.
 
 ```kotlin
-// a custom data class implementing the Entry interface
+// A custom data class implementing the Entry interface
 data class Endpoint(
-    override val name: String, // implement the name field
+    @EntryField("Name") // Each field needs this annotation to declare a label
+    override val name: String, // Override the name field
+    @EntryField("URL")
     val url: String,
+    @EntryField("Retry Count")
     val retryCount: Int,
+    @EntryField("Allow HTTP")
     val allowHttp: Boolean
 ) : Entry {
-    // return all the custom fields in a constant order here - excluding the name field
-    override val fields: List<Any>
-        get() = listOf(url, retryCount, allowHttp)
 
-    // the summary of a given entry that is displayed in the UI
+    // Optional: The summary of a given entry that is displayed in the UI
     override val summary: String
         get() = "$url, $retryCount retries" + if (allowHttp) ", allowHttp" else ""
+
+    // Optional: Define a custom serializer, e.g. using GSON
+    class Serializer : EntrySerializer<Endpoint> {
+        override fun serializeEntry(entry: Endpoint): String =
+            Gson().toJson(entry)
+
+        override fun deserializeEntry(str: String): Endpoint =
+            Gson().fromJson(str, Endpoint::class.java)
+    }
 }
 
-// use the custom data class
+// Use the custom data class
 val defaultEndpoints =
     listOf(
         Endpoint("Live", "some.live.endpoint.org", 2, false),
         Endpoint("Dev", "some.dev.endpoint.org", 6, true)
     )
 
-// init the library
+// Init the library
 val endpointPicker = envPicker(
-    Config(
-        "endpointsPicker", // used as sharedPrefs key
-        "Choose Endpoint", // displayed as fragment title
-        EntryDescription(
-            // these define each field's type and name that will be displayed in the UI
-            listOf(
-                FieldDescription("URL", FieldType.String),
-                FieldDescription("Retry Count", FieldType.Int),
-                FieldDescription("Allow HTTP", FieldType.Boolean),
-            ),
-            // how to create an Endpoint from user inputs
-            { name, fields ->
-                Endpoint(name, fields[0] as String, fields[1] as Int, fields[2] as Boolean)
-            },
-            // how to serialize it
-            // we use Gson here, but you can use any serialization method you like
-            { entry -> Gson().toJson(entry) },
-            // and how to deserialize it
-            { str -> Gson().fromJson(str, Endpoint::class.java) }
-        ),
-        // which Endpoints should be available per default?
-        defaultEndpoints,
-        // which endpoint should be active initially?
-        defaultEndpoints[0]
-    ),
-    context
+    key = "endpointsPicker", // Used as sharedPrefs key
+    uiTitle = "Choose Endpoint", // Displayed as title of picker UI
+    // Which Endpoints should be available per default?
+    defaultEntries = defaultEndpoints,
+    // Which endpoint should be active initially?
+    defaultActiveEntry = defaultEndpoints[0],
+    // Optional: Use your custom serializer
+    customSerializer = Endpoint.Serializer(),
+    context = context,
 )
 
-// accessing the entry's fields now works with the custom field names
+// Accessing the current entry now returns an instance of your custom data class
 val currentlyActiveEndpointUrl =
-    endpointPicker.getActiveEntry(context)?.url
+    endpointPicker.getActiveEntry(context).url
 val currentlyActiveEndpointRetryCount =
-    endpointPicker.getActiveEntry(context)?.retryCount
+    endpointPicker.getActiveEntry(context).retryCount
 ```
 
-### Supported FieldTypes
+### Multiple instances
+
+You can easily define multiple instances of `EnvPicker`, each managing another aspect of your environment. Just make sure to provide unique `key`s in each call to `envPicker`!
+
+### Supported field types
 
 The currently supported types for custom data class fields are:
 
@@ -174,9 +158,19 @@ The currently supported types for custom data class fields are:
 - Int
 - Boolean
 
+## Obfuscation
+
+In case you enable obfuscation through R8 and you are using a custom data class, the following needs
+to be included in your rules:
+
+```
+-keep class <customClassQualifiedName> { *; }
+```
+
 ## Contribute
 
-Have a look at the [contribution guidelines](./CONTRIBUTING.md) to get started! Please also read the [code of conduct](./CODE_OF_CONDUCT.md).
+Have a look at the [contribution guidelines](./CONTRIBUTING.md) to get started! Please also read
+the [code of conduct](./CODE_OF_CONDUCT.md).
 
 ## Maintainers
 

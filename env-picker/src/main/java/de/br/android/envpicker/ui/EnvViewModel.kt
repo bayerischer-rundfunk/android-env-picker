@@ -3,36 +3,24 @@ package de.br.android.envpicker.ui
 import android.content.Context
 import androidx.lifecycle.*
 import com.jakewharton.processphoenix.ProcessPhoenix
-import de.br.android.envpicker.Config
-import de.br.android.envpicker.ConfigStore
-import de.br.android.envpicker.Entry
-import de.br.android.envpicker.EnvRepository
+import de.br.android.envpicker.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 internal class EnvViewModel<T : Entry>(
     private val repo: EnvRepository<T>,
-    val config: Config<T>
+    private val config: Config<T>
 ) : ViewModel() {
+
+    private val entryReflection = EntryReflection(config.defaultActiveEntry)
 
     private val _items = MutableLiveData<List<EntryContainer<T>>>()
     val items: LiveData<List<EntryContainer<T>>> = _items
 
+    val uiTitle get() = config.uiTitle
+
     init {
         update()
-    }
-
-    val fragmentTitle get() = config.fragmentTitle
-
-    private fun loadState(): List<T> = repo.loadEntries()
-
-    private fun saveState(state: List<T>) = repo.saveEntries(state)
-
-    private fun update() {
-        val activeEntryKey = repo.loadActiveEntryKey()
-        loadState()
-            .map { EntryContainer(it, it.name == activeEntryKey) }
-            .let { _items.postValue(it) }
     }
 
     fun removeEntry(entry: T) {
@@ -43,8 +31,8 @@ internal class EnvViewModel<T : Entry>(
         update()
     }
 
-    fun updateEntry(entry: T?, newName: String, newValues: List<Any>) {
-        val newEntry = config.entryDescription.createEntryFromInputs(newName, newValues)
+    fun updateEntry(entry: T?, newValues: List<Any>) {
+        val newEntry = entryReflection.createEntry(newValues)
         val newState = loadState().toMutableList()
         entry?.let {
             newState.remove(it)
@@ -59,22 +47,38 @@ internal class EnvViewModel<T : Entry>(
 
     fun updateEntryAndRestart(
         entry: T?,
-        newName: String,
         newValues: List<Any>,
         context: Context
     ) {
-        updateEntry(entry, newName, newValues)
+        updateEntry(entry, newValues)
         restartApp(context)
-    }
-
-    private fun setActiveEntry(entry: T) {
-        repo.saveActiveEntry(entry)
-        update()
     }
 
     fun setActiveEntryAndRestart(entry: T, context: Context) {
         setActiveEntry(entry)
         restartApp(context)
+    }
+
+    fun getFieldDescriptionsAndValues(entry: T?) =
+        entryReflection.run {
+            if (entry == null) fieldDescriptions.map { it to null }
+            else fieldDescriptions.zip(getFieldValues(entry))
+        }
+
+    private fun loadState(): List<T> = repo.loadEntries()
+
+    private fun saveState(state: List<T>) = repo.saveEntries(state)
+
+    private fun update() {
+        val activeEntryKey = repo.loadActiveEntryKey()
+        loadState()
+            .map { EntryContainer(it, it.name == activeEntryKey) }
+            .let { _items.postValue(it) }
+    }
+
+    private fun setActiveEntry(entry: T) {
+        repo.saveActiveEntry(entry)
+        update()
     }
 
     private fun restartApp(context: Context) = viewModelScope.launch {

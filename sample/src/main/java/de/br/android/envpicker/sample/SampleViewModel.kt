@@ -5,10 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.google.gson.Gson
-import de.br.android.envpicker.*
+import de.br.android.envpicker.envPicker
 
-class MainViewModel(context: Context) : ViewModel() {
+class SampleViewModel(context: Context) : ViewModel() {
     companion object {
         val defaultEndpoints =
             listOf(
@@ -24,25 +23,13 @@ class MainViewModel(context: Context) : ViewModel() {
 
     private val envPicker =
         envPicker(
-            Config(
-                "envPickerSample",
-                "Pick an endpoint!",
-                EntryDescription(
-                    listOf(
-                        FieldDescription("URL", FieldType.String),
-                        FieldDescription("Retry Count", FieldType.Int),
-                        FieldDescription("Allow HTTP", FieldType.Boolean),
-                    ),
-                    { name, fields ->
-                        EnvConfig(name, fields[0] as String, fields[1] as Int, fields[2] as Boolean)
-                    },
-                    { Gson().toJson(it) },
-                    { Gson().fromJson(it, EnvConfig::class.java) },
-                ),
-                defaultEndpoints,
-                defaultEndpoint
-            ),
-            context
+            key = "envPickerSample",
+            uiTitle = "Pick an endpoint!",
+            defaultEntries = defaultEndpoints,
+            defaultActiveEntry = defaultEndpoint,
+            customSerializer = EnvConfig.Serializer(),
+            clearOnChangedDataFormat = false,
+            context = context,
         )
 
     init {
@@ -55,8 +42,8 @@ class MainViewModel(context: Context) : ViewModel() {
 
     @Suppress("UNCHECKED_CAST")
     class Factory(private val context: Context) : ViewModelProvider.Factory {
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return MainViewModel(context) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return SampleViewModel(context.applicationContext) as T
         }
     }
 }

@@ -26,12 +26,31 @@ internal class EnvRepository<T : Entry>(
             context.getSharedPreferences(PREFS_KEY_BASE + config.key, Context.MODE_PRIVATE)
                 ?: throw IllegalStateException()
 
+    private val defaultEntrySerializer by lazy { DefaultEntrySerializer(config.defaultActiveEntry) }
+
+    private fun serializeEntry(value: T): String = try {
+        (config.customSerializer ?: defaultEntrySerializer).serialize(value)
+    } catch (e: Exception) {
+        throw IllegalStateException("Error serializing entry: $value", e)
+    }
+
+    private fun deserializeEntry(value: String): T? = try {
+        (config.customSerializer ?: defaultEntrySerializer).deserialize(value)
+    } catch (e: Exception) {
+        if (config.clearOnChangedDataFormat) null
+        else throw IllegalStateException(
+            "Error deserializing entry: \"$value\". " +
+                    "Set clearOnChangedDataFormat to true if you want a more lenient behavior.",
+            e
+        )
+    }
+
     fun loadEntries(): List<T> =
         prefs.getStringSet(PREFS_ENTRIES_KEY, null)
             ?.map { it.split(ENTRY_ORDER_DELIMITER, limit = 2) }
             ?.let { pairs -> pairs.sortedBy { it[0] } }
             ?.map { it[1] }
-            ?.map(config.entryDescription.deserializeEntry)
+            ?.mapNotNull(::deserializeEntry)
             ?: listOf()
 
     fun loadActiveEntryKey(): String? =
@@ -49,7 +68,7 @@ internal class EnvRepository<T : Entry>(
 
     fun saveEntries(state: List<T>) {
         val newSerializedState = state
-            .map(config.entryDescription.serializeEntry)
+            .map(::serializeEntry)
             .mapIndexed { index, s -> "$index$ENTRY_ORDER_DELIMITER$s" }
             .toSet()
         prefs.edit()
