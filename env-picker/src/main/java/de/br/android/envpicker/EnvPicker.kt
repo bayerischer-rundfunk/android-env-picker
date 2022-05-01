@@ -63,7 +63,7 @@ fun <T : Entry> envPicker(config: Config<T>, context: Context): EnvPicker<T> =
  * Creates an instance of [EnvPicker].
  *
  * @property key Used as SharedPreferences key. Needs to be unique among [EnvPicker] instances.
- * @property uiTitle Displayed as title of fragment.
+ * @property uiTitle Displayed as title of picker UI.
  * @property defaultEntries Will be set as initial values if no entries are present at init time.
  * @property defaultActiveEntry Will be set as initial active entry.
  * @property customSerializer Will be used to handle serialization of the entries.

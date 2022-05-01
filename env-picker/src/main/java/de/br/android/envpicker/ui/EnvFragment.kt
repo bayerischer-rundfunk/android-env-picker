@@ -47,7 +47,7 @@ internal class EnvFragment<T : Entry> : Fragment(R.layout.env_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<TextView>(R.id.toolbar_title).text = viewModel.fragmentTitle
+        view.findViewById<TextView>(R.id.toolbar_title).text = viewModel.uiTitle
 
         val adapter = EntryAdapter(onEntryClicked, onEditEntryClicked)
         recycler?.adapter = adapter
